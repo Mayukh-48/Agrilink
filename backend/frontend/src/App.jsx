@@ -8,6 +8,7 @@ import Offers from "./pages/Offers";
 import Logistics from "./pages/Logistics";
 import Payments from "./pages/Payments";
 import Grievances from "./pages/Grievances";
+import Login from "./pages/Login";
 
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
@@ -25,6 +26,16 @@ function App() {
     harvest_date: "",
     expected_price: "",
   });
+
+  const [isLoggedIn, setIsLoggedIn] = useState(
+  !!localStorage.getItem("user_id")
+);
+
+const [loggedInUser, setLoggedInUser] = useState({
+  username: localStorage.getItem("username") || "",
+  farmer_id: localStorage.getItem("farmer_id") || "",
+  role: localStorage.getItem("role") || "",
+});
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/health")
@@ -325,8 +336,24 @@ function App() {
     return null;
   };
 
-  return (
-    <div className="app">
+  const handleLogin = (userData) => {
+  setIsLoggedIn(true);
+
+  setLoggedInUser({
+    username: userData.username,
+    farmer_id: userData.farmer_id,
+    role: userData.role,
+  });
+
+  setActivePage("Dashboard");
+};
+
+  if (!isLoggedIn) {
+  return <Login onLogin={handleLogin} />;
+}
+
+return (
+  <div className="app">
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -397,9 +424,31 @@ function App() {
             </div>
 
             <div>
-              <strong>Farmer</strong>
-              <span>Demo Account</span>
+              <strong>{loggedInUser.username || "Farmer"}</strong>
+              <span>
+                {loggedInUser.role || "FARMER"}
+              </span>
             </div>
+
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => {
+                localStorage.removeItem("user_id");
+                localStorage.removeItem("username");
+                localStorage.removeItem("farmer_id");
+                localStorage.removeItem("role");
+
+                setIsLoggedIn(false);
+                setLoggedInUser({
+                  username: "",
+                  farmer_id: "",
+                  role: "",
+                });
+              }}
+            >
+              Logout
+            </button>
 
           </div>
 
