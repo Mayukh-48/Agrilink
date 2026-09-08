@@ -395,3 +395,53 @@ nav {
     align-items: flex-start;
   }
 }
+
+.page-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.page-header p {
+  color: #777;
+  font-size: 13px;
+}
+
+.crop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crop-list-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  background: #f8faf8;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.crop-list-item .crop-info {
+  flex: 1;
+}
+
+.crop-list-item .crop-info p {
+  color: #777;
+  font-size: 12px;
+  margin-top: 4px;
+}
