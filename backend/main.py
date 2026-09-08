@@ -19,68 +19,199 @@ from models import (
 )
 from prediction import predict_price
 
-def seed_market_prices(db: Session):
-
+def seed_initial_data(db: Session):
     existing_prices = db.query(MarketPrice).count()
+    if existing_prices == 0:
+        prices = [
+            MarketPrice(
+                market_name="Lasalgaon APMC",
+                district="Nashik",
+                commodity="Onion",
+                variety="Red Onion",
+                min_price=25,
+                max_price=34,
+                modal_price=31,
+                arrival_quantity=850
+            ),
+            MarketPrice(
+                market_name="Pimpalgaon APMC",
+                district="Nashik",
+                commodity="Onion",
+                variety="Red Onion",
+                min_price=24,
+                max_price=33,
+                modal_price=30,
+                arrival_quantity=720
+            ),
+            MarketPrice(
+                market_name="Pune APMC",
+                district="Pune",
+                commodity="Onion",
+                variety="Red Onion",
+                min_price=27,
+                max_price=36,
+                modal_price=33,
+                arrival_quantity=640
+            ),
+            MarketPrice(
+                market_name="Vashi APMC",
+                district="Mumbai",
+                commodity="Onion",
+                variety="Red Onion",
+                min_price=30,
+                max_price=40,
+                modal_price=37,
+                arrival_quantity=900
+            )
+        ]
+        db.add_all(prices)
+        db.commit()
 
-    if existing_prices > 0:
-        return
-
-    prices = [
-        MarketPrice(
-            market_name="Lasalgaon APMC",
+    if db.query(Farmer).count() == 0:
+        farmer = Farmer(
+            id=1,
+            name="Ramesh Patil",
+            phone="9876543210",
+            village="Pimpalgaon",
+            taluka="Niphad",
             district="Nashik",
-            commodity="Onion",
-            variety="Red Onion",
-            min_price=25,
-            max_price=34,
-            modal_price=31,
-            arrival_quantity=850
-        ),
-
-        MarketPrice(
-            market_name="Pimpalgaon APMC",
-            district="Nashik",
-            commodity="Onion",
-            variety="Red Onion",
-            min_price=24,
-            max_price=33,
-            modal_price=30,
-            arrival_quantity=720
-        ),
-
-        MarketPrice(
-            market_name="Pune APMC",
-            district="Pune",
-            commodity="Onion",
-            variety="Red Onion",
-            min_price=27,
-            max_price=36,
-            modal_price=33,
-            arrival_quantity=640
-        ),
-
-        MarketPrice(
-            market_name="Vashi APMC",
-            district="Mumbai",
-            commodity="Onion",
-            variety="Red Onion",
-            min_price=30,
-            max_price=40,
-            modal_price=37,
-            arrival_quantity=900
+            state="Maharashtra"
         )
-    ]
+        db.add(farmer)
+        db.commit()
 
-    db.add_all(prices)
-    db.commit()
+    if db.query(CropLot).count() == 0:
+        lots = [
+            CropLot(
+                id=1,
+                farmer_id=1,
+                commodity="Onion",
+                quantity_kg=5000,
+                quality_grade="Grade A",
+                district="Nashik",
+                harvest_date=date(2026, 9, 1),
+                expected_price=32.0,
+                status="AVAILABLE"
+            ),
+            CropLot(
+                id=2,
+                farmer_id=1,
+                commodity="Tomato",
+                quantity_kg=3000,
+                quality_grade="Grade A",
+                district="Pune",
+                harvest_date=date(2026, 9, 5),
+                expected_price=28.0,
+                status="AVAILABLE"
+            ),
+            CropLot(
+                id=3,
+                farmer_id=1,
+                commodity="Potato",
+                quantity_kg=8000,
+                quality_grade="Grade B",
+                district="Nashik",
+                harvest_date=date(2026, 8, 28),
+                expected_price=22.0,
+                status="AVAILABLE"
+            )
+        ]
+        db.add_all(lots)
+        db.commit()
+
+    if db.query(Buyer).count() == 0:
+        buyers = [
+            Buyer(
+                id=1,
+                business_name="Sahyadri Agro Traders",
+                buyer_type="Wholesaler",
+                district="Nashik",
+                state="Maharashtra",
+                commodities="Onion,Tomato,Potato",
+                max_quantity_kg=10000,
+                max_price_per_kg=35.0,
+                reliability_score=92.0,
+                verified=1
+            ),
+            Buyer(
+                id=2,
+                business_name="Reliance Fresh Sourcing",
+                buyer_type="Retail Chain",
+                district="Mumbai",
+                state="Maharashtra",
+                commodities="Onion,Tomato",
+                max_quantity_kg=25000,
+                max_price_per_kg=38.0,
+                reliability_score=95.0,
+                verified=1
+            ),
+            Buyer(
+                id=3,
+                business_name="BigBasket Agri Hub",
+                buyer_type="E-Commerce",
+                district="Pune",
+                state="Maharashtra",
+                commodities="Onion,Tomato,Potato",
+                max_quantity_kg=15000,
+                max_price_per_kg=34.0,
+                reliability_score=88.0,
+                verified=1
+            ),
+            Buyer(
+                id=4,
+                business_name="Kisan Fresh Exports",
+                buyer_type="Exporter",
+                district="Nashik",
+                state="Maharashtra",
+                commodities="Onion",
+                max_quantity_kg=50000,
+                max_price_per_kg=40.0,
+                reliability_score=96.0,
+                verified=1
+            )
+        ]
+        db.add_all(buyers)
+        db.commit()
+
+    if db.query(Offer).count() == 0:
+        offer1 = Offer(
+            id=1,
+            crop_lot_id=1,
+            buyer_id=1,
+            offered_price_per_kg=34.0,
+            quantity_kg=2000,
+            total_amount=68000.0,
+            status="ACCEPTED"
+        )
+        offer2 = Offer(
+            id=2,
+            crop_lot_id=1,
+            buyer_id=4,
+            offered_price_per_kg=35.0,
+            quantity_kg=3000,
+            total_amount=105000.0,
+            status="PENDING"
+        )
+        db.add_all([offer1, offer2])
+        db.commit()
+
+    if db.query(Logistics).count() == 0:
+        logistics1 = Logistics(
+            id=1,
+            offer_id=1,
+            pickup_location="Pimpalgaon Farm Gate, Nashik",
+            delivery_location="Sahyadri Hub, Lasalgaon APMC",
+            transporter_name="Om Logistics",
+            vehicle_number="MH-15-AB-1234",
+            status="IN_TRANSIT"
+        )
+        db.add(logistics1)
+        db.commit()
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 db = SessionLocal()
-
-seed_market_prices(db)
-
+seed_initial_data(db)
 db.close()
 
 
@@ -96,8 +227,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
     ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -219,37 +355,47 @@ def get_market_prices(
     return prices
 @app.get("/api/prediction/price")
 def price_prediction(
-    commodity: str,
-    market_name: str,
+    commodity: str = None,
+    market_name: str = None,
+    current_price: float = None,
+    days: int = 7,
+    district: str = None,
     db: Session = Depends(get_db)
 ):
-
-    market = (
-        db.query(MarketPrice)
-        .filter(
-            func.lower(MarketPrice.commodity) == commodity.lower(),
-            func.lower(MarketPrice.market_name) == market_name.lower()
+    if current_price is not None:
+        predictions = predict_price(
+            current_price=float(current_price),
+            days=int(days)
         )
-        .first()
-    )
+        return predictions
+
+    query = db.query(MarketPrice)
+    if commodity:
+        query = query.filter(func.lower(MarketPrice.commodity) == commodity.lower())
+    if market_name:
+        query = query.filter(func.lower(MarketPrice.market_name) == market_name.lower())
+    elif district:
+        query = query.filter(func.lower(MarketPrice.district) == district.lower())
+
+    market = query.first()
 
     if market is None:
-        return {
-            "error": "Market price data not found"
-        }
+        market = db.query(MarketPrice).first()
 
-    current_price = market.modal_price
+    base_price = market.modal_price if market else 30.0
+    comm_name = market.commodity if market else (commodity or "Onion")
+    mkt_name = market.market_name if market else (market_name or "Lasalgaon APMC")
 
     predictions = predict_price(
-        current_price=current_price,
-        days=7
+        current_price=base_price,
+        days=int(days)
     )
 
     return {
-        "commodity": market.commodity,
-        "market": market.market_name,
-        "current_price": current_price,
-        "forecast_days": 7,
+        "commodity": comm_name,
+        "market": mkt_name,
+        "current_price": base_price,
+        "forecast_days": days,
         "predictions": predictions
     }
 
@@ -436,6 +582,7 @@ def create_offer(
     return {
         "message": "Offer created successfully",
         "offer_id": offer.id,
+        "id": offer.id,
         "crop_lot_id": crop_lot_id,
         "buyer_id": buyer_id,
         "offered_price_per_kg": offered_price_per_kg,
@@ -544,6 +691,7 @@ def create_logistics(
     return {
         "message": "Logistics created successfully",
         "logistics_id": logistics.id,
+        "id": logistics.id,
         "offer_id": logistics.offer_id,
         "pickup_location": logistics.pickup_location,
         "delivery_location": logistics.delivery_location,
@@ -659,6 +807,7 @@ def create_payment(
     return {
         "message": "Payment recorded successfully",
         "transaction_id": transaction.id,
+        "id": transaction.id,
         "offer_id": transaction.offer_id,
         "amount": transaction.amount,
         "payment_method": transaction.payment_method,
@@ -712,6 +861,7 @@ def create_grievance(
     return {
         "message": "Grievance created successfully",
         "grievance_id": grievance.id,
+        "id": grievance.id,
         "farmer_id": grievance.farmer_id,
         "category": grievance.category,
         "description": grievance.description,
