@@ -16,15 +16,15 @@ function App() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [showCropForm, setShowCropForm] = useState(false);
 
-const [cropForm, setCropForm] = useState({
-  farmer_id: 1,
-  commodity: "",
-  quantity_kg: "",
-  quality_grade: "",
-  district: "",
-  harvest_date: "",
-  expected_price: "",
-});
+  const [cropForm, setCropForm] = useState({
+    farmer_id: 1,
+    commodity: "",
+    quantity_kg: "",
+    quality_grade: "",
+    district: "",
+    harvest_date: "",
+    expected_price: "",
+  });
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/health")
@@ -56,68 +56,69 @@ const [cropForm, setCropForm] = useState({
   }, []);
 
   const handleCropChange = (event) => {
-  const { name, value } = event.target;
+    const { name, value } = event.target;
 
-  setCropForm((previous) => ({
-    ...previous,
-    [name]: value,
-  }));
-};
+    setCropForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
 
-const addCrop = async (event) => {
-  event.preventDefault();
+  const addCrop = async (event) => {
+    event.preventDefault();
 
-  try {
-    const params = new URLSearchParams({
-      farmer_id: cropForm.farmer_id,
-      commodity: cropForm.commodity,
-      quantity_kg: cropForm.quantity_kg,
-      quality_grade: cropForm.quality_grade,
-      district: cropForm.district,
-      harvest_date: cropForm.harvest_date,
-      expected_price: cropForm.expected_price,
-    });
+    try {
+      const params = new URLSearchParams({
+        farmer_id: cropForm.farmer_id,
+        commodity: cropForm.commodity,
+        quantity_kg: cropForm.quantity_kg,
+        quality_grade: cropForm.quality_grade,
+        district: cropForm.district,
+        harvest_date: cropForm.harvest_date,
+        expected_price: cropForm.expected_price,
+      });
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/crop-lots?${params.toString()}`,
-      {
-        method: "POST",
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/crop-lots?${params.toString()}`,
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        alert(data.error || "Failed to add crop");
+        return;
       }
-    );
 
-    const data = await response.json();
+      alert("Crop added successfully! 🌾");
 
-    if (!response.ok || data.error) {
-      alert(data.error || "Failed to add crop");
-      return;
+      setShowCropForm(false);
+
+      setCropForm({
+        farmer_id: 1,
+        commodity: "",
+        quantity_kg: "",
+        quality_grade: "",
+        district: "",
+        harvest_date: "",
+        expected_price: "",
+      });
+
+      const cropResponse = await fetch(
+        "http://127.0.0.1:8000/api/crop-lots"
+      );
+
+      const cropData = await cropResponse.json();
+
+      setCropLots(cropData);
+    } catch (error) {
+      console.error("Add crop error:", error);
+      alert("Could not connect to the backend.");
     }
+  };
 
-    alert("Crop added successfully! 🌾");
-
-    setShowCropForm(false);
-
-    setCropForm({
-      farmer_id: 1,
-      commodity: "",
-      quantity_kg: "",
-      quality_grade: "",
-      district: "",
-      harvest_date: "",
-      expected_price: "",
-    });
-
-    const cropResponse = await fetch(
-      "http://127.0.0.1:8000/api/crop-lots"
-    );
-
-    const cropData = await cropResponse.json();
-
-    setCropLots(cropData);
-  } catch (error) {
-    console.error("Add crop error:", error);
-    alert("Could not connect to the backend.");
-  }
-};
   const menuItems = [
     "Dashboard",
     "Crop Listings",
@@ -136,106 +137,118 @@ const addCrop = async (event) => {
         <div className="page-card">
           <div className="page-header">
             <div>
+
               {showCropForm && (
-  <form className="crop-form" onSubmit={addCrop}>
+                <form className="crop-form" onSubmit={addCrop}>
 
-    <h3>Add New Crop</h3>
+                  <h3>Add New Crop</h3>
 
-    <div className="form-grid">
+                  <div className="form-grid">
 
-      <div>
-        <label>Commodity</label>
-        <input
-          name="commodity"
-          value={cropForm.commodity}
-          onChange={handleCropChange}
-          placeholder="e.g. Onion"
-          required
-        />
-      </div>
+                    <div>
+                      <label>Commodity</label>
 
-      <div>
-        <label>Quantity (kg)</label>
-        <input
-          name="quantity_kg"
-          type="number"
-          value={cropForm.quantity_kg}
-          onChange={handleCropChange}
-          placeholder="e.g. 1000"
-          required
-        />
-      </div>
+                      <input
+                        name="commodity"
+                        value={cropForm.commodity}
+                        onChange={handleCropChange}
+                        placeholder="e.g. Onion"
+                        required
+                      />
+                    </div>
 
-      <div>
-        <label>Quality Grade</label>
-        <input
-          name="quality_grade"
-          value={cropForm.quality_grade}
-          onChange={handleCropChange}
-          placeholder="e.g. A"
-        />
-      </div>
+                    <div>
+                      <label>Quantity (kg)</label>
 
-      <div>
-        <label>District</label>
-        <input
-          name="district"
-          value={cropForm.district}
-          onChange={handleCropChange}
-          placeholder="e.g. Nashik"
-          required
-        />
-      </div>
+                      <input
+                        name="quantity_kg"
+                        type="number"
+                        value={cropForm.quantity_kg}
+                        onChange={handleCropChange}
+                        placeholder="e.g. 1000"
+                        required
+                      />
+                    </div>
 
-      <div>
-        <label>Harvest Date</label>
-        <input
-          name="harvest_date"
-          type="date"
-          value={cropForm.harvest_date}
-          onChange={handleCropChange}
-          required
-        />
-      </div>
+                    <div>
+                      <label>Quality Grade</label>
 
-      <div>
-        <label>Expected Price (₹/kg)</label>
-        <input
-          name="expected_price"
-          type="number"
-          step="0.01"
-          value={cropForm.expected_price}
-          onChange={handleCropChange}
-          placeholder="e.g. 32"
-          required
-        />
-      </div>
+                      <input
+                        name="quality_grade"
+                        value={cropForm.quality_grade}
+                        onChange={handleCropChange}
+                        placeholder="e.g. A"
+                      />
+                    </div>
 
-    </div>
+                    <div>
+                      <label>District</label>
 
-    <div className="form-buttons">
+                      <input
+                        name="district"
+                        value={cropForm.district}
+                        onChange={handleCropChange}
+                        placeholder="e.g. Nashik"
+                        required
+                      />
+                    </div>
 
-      <button
-        type="submit"
-        className="primary-button"
-      >
-        Save Crop
-      </button>
+                    <div>
+                      <label>Harvest Date</label>
 
-      <button
-        type="button"
-        className="cancel-button"
-        onClick={() => setShowCropForm(false)}
-      >
-        Cancel
-      </button>
+                      <input
+                        name="harvest_date"
+                        type="date"
+                        value={cropForm.harvest_date}
+                        onChange={handleCropChange}
+                        required
+                      />
+                    </div>
 
-    </div>
+                    <div>
+                      <label>Expected Price (₹/kg)</label>
 
-  </form>
-)}
+                      <input
+                        name="expected_price"
+                        type="number"
+                        step="0.01"
+                        value={cropForm.expected_price}
+                        onChange={handleCropChange}
+                        placeholder="e.g. 32"
+                        required
+                      />
+                    </div>
+
+                  </div>
+
+                  <div className="form-buttons">
+
+                    <button
+                      type="submit"
+                      className="primary-button"
+                    >
+                      Save Crop
+                    </button>
+
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setShowCropForm(false)}
+                    >
+                      Cancel
+                    </button>
+
+                  </div>
+
+                </form>
+              )}
+
               <h2>Crop Listings</h2>
-              <p>View all crops listed by farmers.</p>
+
+              <p>
+                View all crops listed by farmers.
+              </p>
+
             </div>
 
             <button
@@ -244,14 +257,20 @@ const addCrop = async (event) => {
             >
               + Add Crop
             </button>
+
           </div>
 
           {cropLots.length === 0 ? (
             <p>No crop listings found.</p>
           ) : (
             <div className="crop-list">
+
               {cropLots.map((crop) => (
-                <div className="crop-list-item" key={crop.id}>
+                <div
+                  className="crop-list-item"
+                  key={crop.id}
+                >
+
                   <div className="crop-image">
                     {crop.commodity.toLowerCase() === "onion"
                       ? "🧅"
@@ -259,6 +278,7 @@ const addCrop = async (event) => {
                   </div>
 
                   <div className="crop-info">
+
                     <h3>{crop.commodity}</h3>
 
                     <p>
@@ -270,24 +290,34 @@ const addCrop = async (event) => {
                     </p>
 
                     <p>
-                      Quality: {crop.quality_grade || "Not specified"}
+                      Quality:{" "}
+                      {crop.quality_grade || "Not specified"}
                     </p>
+
                   </div>
 
                   <div className="crop-price">
-                    <span>Expected Price</span>
+
+                    <span>
+                      Expected Price
+                    </span>
+
                     <strong>
                       ₹{crop.expected_price}/kg
                     </strong>
+
                   </div>
 
                   <span className="available">
                     {crop.status}
                   </span>
+
                 </div>
               ))}
+
             </div>
           )}
+
         </div>
       );
     }
@@ -308,23 +338,36 @@ const addCrop = async (event) => {
         <p className="menu-title">MENU</p>
 
         <nav>
+
           {menuItems.map((item) => (
             <button
               key={item}
-              className={`menu-item ${activePage === item ? "active" : ""
-                }`}
-              onClick={() => setActivePage(item)}
+              className={`menu-item ${
+                activePage === item ? "active" : ""
+              }`}
+              onClick={() => {
+                setActivePage(item);
+
+                // Close crop form when leaving Crop Listings
+                if (item !== "Crop Listings") {
+                  setShowCropForm(false);
+                }
+              }}
             >
               {item}
             </button>
           ))}
+
         </nav>
 
         <div className="sidebar-bottom">
+
           <p>🌱 Smart Farming</p>
+
           <small>
             Connecting farmers with better markets
           </small>
+
         </div>
 
       </aside>
@@ -334,7 +377,9 @@ const addCrop = async (event) => {
 
         {/* Header */}
         <header className="topbar">
+
           <div>
+
             <h1>{activePage}</h1>
 
             <p>
@@ -342,9 +387,11 @@ const addCrop = async (event) => {
                 ? "Welcome back! Here's what's happening with your crops."
                 : `Manage your ${activePage.toLowerCase()} here.`}
             </p>
+
           </div>
 
           <div className="profile">
+
             <div className="profile-icon">
               👨‍🌾
             </div>
@@ -353,14 +400,18 @@ const addCrop = async (event) => {
               <strong>Farmer</strong>
               <span>Demo Account</span>
             </div>
+
           </div>
+
         </header>
 
         {/* Dashboard */}
         {activePage === "Dashboard" && (
           <>
+
             {/* Status */}
             <div className="status-bar">
+
               <span>Backend Status</span>
 
               <strong
@@ -372,25 +423,41 @@ const addCrop = async (event) => {
               >
                 ● {backendStatus}
               </strong>
+
             </div>
 
             {/* Statistics */}
             <section className="stats-grid">
 
               <div className="stat-card">
-                <div className="stat-icon">🌾</div>
+
+                <div className="stat-icon">
+                  🌾
+                </div>
 
                 <div>
-                  <span>Active Crop Lots</span>
-                  <h2>{cropLots.length}</h2>
+                  <span>
+                    Active Crop Lots
+                  </span>
+
+                  <h2>
+                    {cropLots.length}
+                  </h2>
                 </div>
+
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon">💰</div>
+
+                <div className="stat-icon">
+                  💰
+                </div>
 
                 <div>
-                  <span>Expected Value</span>
+
+                  <span>
+                    Expected Value
+                  </span>
 
                   <h2>
                     ₹
@@ -404,25 +471,49 @@ const addCrop = async (event) => {
                       )
                       .toLocaleString("en-IN")}
                   </h2>
+
                 </div>
+
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon">🤝</div>
+
+                <div className="stat-icon">
+                  🤝
+                </div>
 
                 <div>
-                  <span>Buyer Matches</span>
-                  <h2>2</h2>
+
+                  <span>
+                    Buyer Matches
+                  </span>
+
+                  <h2>
+                    2
+                  </h2>
+
                 </div>
+
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon">📦</div>
+
+                <div className="stat-icon">
+                  📦
+                </div>
 
                 <div>
-                  <span>Completed Sales</span>
-                  <h2>1</h2>
+
+                  <span>
+                    Completed Sales
+                  </span>
+
+                  <h2>
+                    1
+                  </h2>
+
                 </div>
+
               </div>
 
             </section>
@@ -434,18 +525,35 @@ const addCrop = async (event) => {
               <div className="dashboard-card">
 
                 <div className="card-header">
+
                   <div>
-                    <h2>My Crop Listings</h2>
-                    <p>Your recently listed crops</p>
+
+                    <h2>
+                      My Crop Listings
+                    </h2>
+
+                    <p>
+                      Your recently listed crops
+                    </p>
+
                   </div>
 
-                  <button className="primary-button">
+                  <button
+                    className="primary-button"
+                    onClick={() => {
+                      setActivePage("Crop Listings");
+                      setShowCropForm(true);
+                    }}
+                  >
                     + Add Crop
                   </button>
+
                 </div>
 
                 {cropLots.length === 0 ? (
-                  <p>No crop listings found.</p>
+                  <p>
+                    No crop listings found.
+                  </p>
                 ) : (
                   cropLots.map((crop) => (
                     <div
@@ -454,22 +562,29 @@ const addCrop = async (event) => {
                     >
 
                       <div className="crop-image">
+
                         {crop.commodity
                           .toLowerCase() === "onion"
                           ? "🧅"
                           : "🌾"}
+
                       </div>
 
                       <div className="crop-info">
-                        <h3>{crop.commodity}</h3>
+
+                        <h3>
+                          {crop.commodity}
+                        </h3>
 
                         <p>
                           {crop.quantity_kg} kg •{" "}
                           {crop.district}
                         </p>
+
                       </div>
 
                       <div className="crop-price">
+
                         <span>
                           Expected Price
                         </span>
@@ -477,6 +592,7 @@ const addCrop = async (event) => {
                         <strong>
                           ₹{crop.expected_price}/kg
                         </strong>
+
                       </div>
 
                       <span className="available">
@@ -493,20 +609,32 @@ const addCrop = async (event) => {
               <div className="dashboard-card">
 
                 <div className="card-header">
+
                   <div>
-                    <h2>Market Snapshot</h2>
-                    <p>Current onion prices</p>
+
+                    <h2>
+                      Market Snapshot
+                    </h2>
+
+                    <p>
+                      Current onion prices
+                    </p>
+
                   </div>
+
                 </div>
 
                 {marketPrices.length === 0 ? (
-                  <p>No market prices found.</p>
+                  <p>
+                    No market prices found.
+                  </p>
                 ) : (
                   marketPrices.map((market) => (
                     <div
                       className="market-row"
                       key={market.id}
                     >
+
                       <span>
                         {market.market_name}
                       </span>
@@ -514,6 +642,7 @@ const addCrop = async (event) => {
                       <strong>
                         ₹{market.modal_price}/kg
                       </strong>
+
                     </div>
                   ))
                 )}
@@ -526,83 +655,127 @@ const addCrop = async (event) => {
             <section className="dashboard-card quick-actions">
 
               <div className="card-header">
+
                 <div>
-                  <h2>Quick Actions</h2>
+
+                  <h2>
+                    Quick Actions
+                  </h2>
+
                   <p>
                     Manage your agricultural activities
                   </p>
+
                 </div>
+
               </div>
 
               <div className="action-grid">
 
-                <button>
+                {/* List New Crop */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePage("Crop Listings");
+                    setShowCropForm(true);
+                  }}
+                >
                   🌾
-                  <span>List New Crop</span>
+                  <span>
+                    List New Crop
+                  </span>
                 </button>
 
-                <button>
+                {/* Check Market Prices */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePage("Market Prices");
+                    setShowCropForm(false);
+                  }}
+                >
                   📊
-                  <span>Check Market Prices</span>
+                  <span>
+                    Check Market Prices
+                  </span>
                 </button>
 
-                <button>
+                {/* Predict Future Price */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePage("Price Prediction");
+                    setShowCropForm(false);
+                  }}
+                >
                   🤖
-                  <span>Predict Future Price</span>
+                  <span>
+                    Predict Future Price
+                  </span>
                 </button>
 
-                <button>
+                {/* Find Buyers */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePage("Buyer Matching");
+                    setShowCropForm(false);
+                  }}
+                >
                   🤝
-                  <span>Find Buyers</span>
+                  <span>
+                    Find Buyers
+                  </span>
                 </button>
 
               </div>
 
             </section>
+
           </>
         )}
 
         {/* Crop Listings */}
-{activePage === "Crop Listings" && (
-  renderPage()
-)}
+        {activePage === "Crop Listings" && (
+          renderPage()
+        )}
 
-{/* Market Prices */}
-{activePage === "Market Prices" && (
-  <MarketPrices
-    marketPrices={marketPrices}
-  />
-)}
+        {/* Market Prices */}
+        {activePage === "Market Prices" && (
+          <MarketPrices
+            marketPrices={marketPrices}
+          />
+        )}
 
-{/* Price Prediction */}
-{activePage === "Price Prediction" && (
-  <PricePrediction />
-)}
+        {/* Price Prediction */}
+        {activePage === "Price Prediction" && (
+          <PricePrediction />
+        )}
 
-{/* Buyer Matching */}
-{activePage === "Buyer Matching" && (
-  <BuyerMatching />
-)}
+        {/* Buyer Matching */}
+        {activePage === "Buyer Matching" && (
+          <BuyerMatching />
+        )}
 
-{/* Offers */}
-{activePage === "Offers" && (
-  <Offers />
-)}
+        {/* Offers */}
+        {activePage === "Offers" && (
+          <Offers />
+        )}
 
-{/* Logistics */}
-{activePage === "Logistics" && (
-  <Logistics />
-)}
+        {/* Logistics */}
+        {activePage === "Logistics" && (
+          <Logistics />
+        )}
 
-{/* Payments */}
-{activePage === "Payments" && (
-  <Payments />
-)}
+        {/* Payments */}
+        {activePage === "Payments" && (
+          <Payments />
+        )}
 
-{/* Grievances */}
-{activePage === "Grievances" && (
-  <Grievances />
-)}
+        {/* Grievances */}
+        {activePage === "Grievances" && (
+          <Grievances />
+        )}
 
       </main>
     </div>
