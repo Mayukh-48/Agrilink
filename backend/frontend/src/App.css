@@ -589,3 +589,24 @@ label {
 .cancel-button {
   color: white !important;
 }
+
+/* Fix secondary buttons */
+.cancel-button {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db !important;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Make disabled buttons still visible */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

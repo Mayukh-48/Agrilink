@@ -2,30 +2,74 @@ import { useEffect, useState } from "react";
 
 function Offers() {
   const [offers, setOffers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchOffers = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/offers"
+      );
+
+      const data = await response.json();
+
+      setOffers(data);
+    } catch (error) {
+      console.error("Offers error:", error);
+      alert("Could not load offers.");
+    }
+  };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/offers")
-      .then((response) => response.json())
-      .then((data) => {
-        setOffers(data);
-      })
-      .catch((error) => {
-        console.error("Offers error:", error);
-      });
+    fetchOffers();
   }, []);
+
+  const updateOfferStatus = async (offerId, action) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/offers/${offerId}/${action}`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
+      alert(
+        `Offer #${offerId} ${
+          action === "accept" ? "accepted" : "rejected"
+        } successfully.`
+      );
+
+      await fetchOffers();
+    } catch (error) {
+      console.error("Offer status error:", error);
+      alert("Could not update offer status.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="page-card">
 
+      {/* PAGE HEADER */}
       <div className="page-header">
         <div>
           <h2>Offers 💰</h2>
           <p>
-            View offers received from buyers.
+            View and manage offers received from buyers.
           </p>
         </div>
       </div>
 
+      {/* OFFERS */}
       {offers.length === 0 ? (
         <p>No offers found.</p>
       ) : (
@@ -37,10 +81,12 @@ function Offers() {
               key={offer.id}
             >
 
+              {/* ICON */}
               <div className="crop-image">
                 💰
               </div>
 
+              {/* OFFER DETAILS */}
               <div className="crop-info">
 
                 <h3>
@@ -59,11 +105,21 @@ function Offers() {
                   Quantity: {offer.quantity_kg} kg
                 </p>
 
+                <p>
+                  Total Value: ₹
+                  {Number(
+                    offer.total_amount || 0
+                  ).toLocaleString("en-IN")}
+                </p>
+
               </div>
 
+              {/* PRICE */}
               <div className="crop-price">
 
-                <span>Offered Price</span>
+                <span>
+                  Offered Price
+                </span>
 
                 <strong>
                   ₹{offer.offered_price_per_kg}/kg
@@ -71,9 +127,51 @@ function Offers() {
 
               </div>
 
+              {/* STATUS */}
               <span className="available">
                 {offer.status}
               </span>
+
+              {/* ACTIONS */}
+              {offer.status === "PENDING" && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexDirection: "column",
+                  }}
+                >
+
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={loading}
+                    onClick={() =>
+                      updateOfferStatus(
+                        offer.id,
+                        "accept"
+                      )
+                    }
+                  >
+                    Accept
+                  </button>
+
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    disabled={loading}
+                    onClick={() =>
+                      updateOfferStatus(
+                        offer.id,
+                        "reject"
+                      )
+                    }
+                  >
+                    Reject
+                  </button>
+
+                </div>
+              )}
 
             </div>
           ))}
