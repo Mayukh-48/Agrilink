@@ -111,6 +111,7 @@ function App() {
 
     return null;
   };
+
   return (
     <div className="app">
 
@@ -127,7 +128,8 @@ function App() {
           {menuItems.map((item) => (
             <button
               key={item}
-              className={`menu-item ${activePage === item ? "active" : ""}`}
+              className={`menu-item ${activePage === item ? "active" : ""
+                }`}
               onClick={() => setActivePage(item)}
             >
               {item}
@@ -137,38 +139,21 @@ function App() {
 
         <div className="sidebar-bottom">
           <p>🌱 Smart Farming</p>
-          <small>Connecting farmers with better markets</small>
+          <small>
+            Connecting farmers with better markets
+          </small>
         </div>
 
       </aside>
 
       {/* Main Content */}
       <main className="main-content">
-        {activePage !== "Dashboard" && (
-          <>
-            <header className="topbar">
-              <div>
-                <h1>{activePage}</h1>
-                <p>Manage your agricultural activities.</p>
-              </div>
-
-              <div className="profile">
-                <div className="profile-icon">👨‍🌾</div>
-                <div>
-                  <strong>Farmer</strong>
-                  <span>Demo Account</span>
-                </div>
-              </div>
-            </header>
-
-            {renderPage()}
-          </>
-        )}
 
         {/* Header */}
         <header className="topbar">
           <div>
             <h1>{activePage}</h1>
+
             <p>
               {activePage === "Dashboard"
                 ? "Welcome back! Here's what's happening with your crops."
@@ -177,7 +162,10 @@ function App() {
           </div>
 
           <div className="profile">
-            <div className="profile-icon">👨‍🌾</div>
+            <div className="profile-icon">
+              👨‍🌾
+            </div>
+
             <div>
               <strong>Farmer</strong>
               <span>Demo Account</span>
@@ -185,156 +173,228 @@ function App() {
           </div>
         </header>
 
-        {/* Status */}
-        <div className="status-bar">
-          <span>Backend Status</span>
+        {/* Dashboard */}
+        {activePage === "Dashboard" && (
+          <>
+            {/* Status */}
+            <div className="status-bar">
+              <span>Backend Status</span>
 
-          <strong className={backendStatus === "OK" ? "online" : "offline"}>
-            ● {backendStatus}
-          </strong>
-        </div>
-
-        {/* Statistics */}
-        <section className="stats-grid">
-
-          <div className="stat-card">
-            <div className="stat-icon">🌾</div>
-            <div>
-              <span>Active Crop Lots</span>
-              <h2>1</h2>
+              <strong
+                className={
+                  backendStatus === "OK"
+                    ? "online"
+                    : "offline"
+                }
+              >
+                ● {backendStatus}
+              </strong>
             </div>
-          </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">💰</div>
-            <div>
-              <span>Expected Value</span>
-              <h2>₹32,000</h2>
-            </div>
-          </div>
+            {/* Statistics */}
+            <section className="stats-grid">
 
-          <div className="stat-card">
-            <div className="stat-icon">🤝</div>
-            <div>
-              <span>Buyer Matches</span>
-              <h2>2</h2>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">🌾</div>
 
-          <div className="stat-card">
-            <div className="stat-icon">📦</div>
-            <div>
-              <span>Completed Sales</span>
-              <h2>1</h2>
-            </div>
-          </div>
-
-        </section>
-
-        {/* Main Cards */}
-        <section className="dashboard-grid">
-
-          <div className="dashboard-card">
-            <div className="card-header">
-              <div>
-                <h2>My Crop Listings</h2>
-                <p>Your recently listed crops</p>
+                <div>
+                  <span>Active Crop Lots</span>
+                  <h2>{cropLots.length}</h2>
+                </div>
               </div>
 
-              <button className="primary-button">
-                + Add Crop
-              </button>
-            </div>
+              <div className="stat-card">
+                <div className="stat-icon">💰</div>
 
-            {cropLots.length === 0 ? (
-              <p>No crop listings found.</p>
-            ) : (
-              cropLots.map((crop) => (
-                <div className="crop-item" key={crop.id}>
+                <div>
+                  <span>Expected Value</span>
 
-                  <div className="crop-image">
-                    {crop.commodity.toLowerCase() === "onion" ? "🧅" : "🌾"}
-                  </div>
-
-                  <div className="crop-info">
-                    <h3>{crop.commodity}</h3>
-                    <p>
-                      {crop.quantity_kg} kg • {crop.district}
-                    </p>
-                  </div>
-
-                  <div className="crop-price">
-                    <span>Expected Price</span>
-                    <strong>₹{crop.expected_price}/kg</strong>
-                  </div>
-
-                  <span className="available">
-                    {crop.status}
-                  </span>
-
+                  <h2>
+                    ₹
+                    {cropLots
+                      .reduce(
+                        (total, crop) =>
+                          total +
+                          (crop.quantity_kg || 0) *
+                          (crop.expected_price || 0),
+                        0
+                      )
+                      .toLocaleString("en-IN")}
+                  </h2>
                 </div>
-              ))
-            )}
-          </div>
-
-          <div className="dashboard-card">
-            <div className="card-header">
-              <div>
-                <h2>Market Snapshot</h2>
-                <p>Current onion prices</p>
               </div>
-            </div>
 
-            {marketPrices.length === 0 ? (
-              <p>No market prices found.</p>
-            ) : (
-              marketPrices.map((market) => (
-                <div className="market-row" key={market.id}>
-                  <span>{market.market_name}</span>
-                  <strong>₹{market.modal_price}/kg</strong>
+              <div className="stat-card">
+                <div className="stat-icon">🤝</div>
+
+                <div>
+                  <span>Buyer Matches</span>
+                  <h2>2</h2>
                 </div>
-              ))
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon">📦</div>
+
+                <div>
+                  <span>Completed Sales</span>
+                  <h2>1</h2>
+                </div>
+              </div>
+
+            </section>
+
+            {/* Main Cards */}
+            <section className="dashboard-grid">
+
+              {/* Crop Listings */}
+              <div className="dashboard-card">
+
+                <div className="card-header">
+                  <div>
+                    <h2>My Crop Listings</h2>
+                    <p>Your recently listed crops</p>
+                  </div>
+
+                  <button className="primary-button">
+                    + Add Crop
+                  </button>
+                </div>
+
+                {cropLots.length === 0 ? (
+                  <p>No crop listings found.</p>
+                ) : (
+                  cropLots.map((crop) => (
+                    <div
+                      className="crop-item"
+                      key={crop.id}
+                    >
+
+                      <div className="crop-image">
+                        {crop.commodity
+                          .toLowerCase() === "onion"
+                          ? "🧅"
+                          : "🌾"}
+                      </div>
+
+                      <div className="crop-info">
+                        <h3>{crop.commodity}</h3>
+
+                        <p>
+                          {crop.quantity_kg} kg •{" "}
+                          {crop.district}
+                        </p>
+                      </div>
+
+                      <div className="crop-price">
+                        <span>
+                          Expected Price
+                        </span>
+
+                        <strong>
+                          ₹{crop.expected_price}/kg
+                        </strong>
+                      </div>
+
+                      <span className="available">
+                        {crop.status}
+                      </span>
+
+                    </div>
+                  ))
+                )}
+
+              </div>
+
+              {/* Market Snapshot */}
+              <div className="dashboard-card">
+
+                <div className="card-header">
+                  <div>
+                    <h2>Market Snapshot</h2>
+                    <p>Current onion prices</p>
+                  </div>
+                </div>
+
+                {marketPrices.length === 0 ? (
+                  <p>No market prices found.</p>
+                ) : (
+                  marketPrices.map((market) => (
+                    <div
+                      className="market-row"
+                      key={market.id}
+                    >
+                      <span>
+                        {market.market_name}
+                      </span>
+
+                      <strong>
+                        ₹{market.modal_price}/kg
+                      </strong>
+                    </div>
+                  ))
+                )}
+
+              </div>
+
+            </section>
+
+            {/* Quick Actions */}
+            <section className="dashboard-card quick-actions">
+
+              <div className="card-header">
+                <div>
+                  <h2>Quick Actions</h2>
+                  <p>
+                    Manage your agricultural activities
+                  </p>
+                </div>
+              </div>
+
+              <div className="action-grid">
+
+                <button>
+                  🌾
+                  <span>List New Crop</span>
+                </button>
+
+                <button>
+                  📊
+                  <span>Check Market Prices</span>
+                </button>
+
+                <button>
+                  🤖
+                  <span>Predict Future Price</span>
+                </button>
+
+                <button>
+                  🤝
+                  <span>Find Buyers</span>
+                </button>
+
+              </div>
+
+            </section>
+          </>
+        )}
+
+        {/* Other Pages */}
+        {activePage !== "Dashboard" && (
+          <>
+            {renderPage()}
+
+            {activePage !== "Crop Listings" && (
+              <div className="page-card">
+                <h2>{activePage}</h2>
+
+                <p>
+                  This section is coming next. 🚀
+                </p>
+              </div>
             )}
-
-          </div>
-
-        </section>
-
-        {/* Quick Actions */}
-        <section className="dashboard-card quick-actions">
-
-          <div className="card-header">
-            <div>
-              <h2>Quick Actions</h2>
-              <p>Manage your agricultural activities</p>
-            </div>
-          </div>
-
-          <div className="action-grid">
-
-            <button>
-              🌾
-              <span>List New Crop</span>
-            </button>
-
-            <button>
-              📊
-              <span>Check Market Prices</span>
-            </button>
-
-            <button>
-              🤖
-              <span>Predict Future Price</span>
-            </button>
-
-            <button>
-              🤝
-              <span>Find Buyers</span>
-            </button>
-
-          </div>
-
-        </section>
+          </>
+        )}
 
       </main>
     </div>
