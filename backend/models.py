@@ -155,3 +155,13 @@ class Grievance(Base):
     status = Column(String, default="OPEN")
 
     resolution = Column(String, nullable=True)
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    farmer_id = Column(Integer, nullable=False)
+    username = Column(String, unique=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    role = Column(String, default="FARMER")
+    is_active = Column(Integer, default=1)
