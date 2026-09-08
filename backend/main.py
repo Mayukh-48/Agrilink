@@ -21,7 +21,23 @@ from models import (
 )
 from prediction import predict_price
 
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
 def seed_initial_data(db: Session):
+    if db.query(User).count() == 0:
+        db.add(User(
+            id=1,
+            farmer_id=1,
+            username="farmer1",
+            password_hash=pwd_context.hash("test123"),
+            role="FARMER",
+            is_active=1
+        ))
+        db.commit()
+
     existing_prices = db.query(MarketPrice).count()
     if existing_prices == 0:
         prices = [
@@ -241,10 +257,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
 
 @app.get("/")
 def home():
