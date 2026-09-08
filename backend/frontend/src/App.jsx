@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+import MarketPrices from "./pages/MarketPrices";
+import PricePrediction from "./pages/PricePrediction";
+import BuyerMatching from "./pages/BuyerMatching";
+import Offers from "./pages/Offers";
+import Logistics from "./pages/Logistics";
+import Payments from "./pages/Payments";
+import Grievances from "./pages/Grievances";
+
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
   const [cropLots, setCropLots] = useState([]);
@@ -554,22 +562,47 @@ const addCrop = async (event) => {
           </>
         )}
 
-        {/* Other Pages */}
-        {activePage !== "Dashboard" && (
-          <>
-            {renderPage()}
+        {/* Crop Listings */}
+{activePage === "Crop Listings" && (
+  renderPage()
+)}
 
-            {activePage !== "Crop Listings" && (
-              <div className="page-card">
-                <h2>{activePage}</h2>
+{/* Market Prices */}
+{activePage === "Market Prices" && (
+  <MarketPrices
+    marketPrices={marketPrices}
+  />
+)}
 
-                <p>
-                  This section is coming next. 🚀
-                </p>
-              </div>
-            )}
-          </>
-        )}
+{/* Price Prediction */}
+{activePage === "Price Prediction" && (
+  <PricePrediction />
+)}
+
+{/* Buyer Matching */}
+{activePage === "Buyer Matching" && (
+  <BuyerMatching />
+)}
+
+{/* Offers */}
+{activePage === "Offers" && (
+  <Offers />
+)}
+
+{/* Logistics */}
+{activePage === "Logistics" && (
+  <Logistics />
+)}
+
+{/* Payments */}
+{activePage === "Payments" && (
+  <Payments />
+)}
+
+{/* Grievances */}
+{activePage === "Grievances" && (
+  <Grievances />
+)}
 
       </main>
     </div>
