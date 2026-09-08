@@ -8,33 +8,33 @@ function App() {
   const [activePage, setActivePage] = useState("Dashboard");
 
   useEffect(() => {
-  fetch("http://127.0.0.1:8000/api/health")
-    .then((response) => response.json())
-    .then((data) => {
-      setBackendStatus(data.status);
-    })
-    .catch(() => {
-      setBackendStatus("Offline");
-    });
+    fetch("http://127.0.0.1:8000/api/health")
+      .then((response) => response.json())
+      .then((data) => {
+        setBackendStatus(data.status);
+      })
+      .catch(() => {
+        setBackendStatus("Offline");
+      });
 
-  fetch("http://127.0.0.1:8000/api/crop-lots")
-    .then((response) => response.json())
-    .then((data) => {
-      setCropLots(data);
-    })
-    .catch((error) => {
-      console.error("Crop lot error:", error);
-    });
+    fetch("http://127.0.0.1:8000/api/crop-lots")
+      .then((response) => response.json())
+      .then((data) => {
+        setCropLots(data);
+      })
+      .catch((error) => {
+        console.error("Crop lot error:", error);
+      });
 
-  fetch("http://127.0.0.1:8000/api/market/prices?commodity=Onion")
-  .then((response) => response.json())
-  .then((data) => {
-    setMarketPrices(data);
-  })
-  .catch((error) => {
-    console.error("Market price error:", error);
-  });
-}, []);
+    fetch("http://127.0.0.1:8000/api/market/prices?commodity=Onion")
+      .then((response) => response.json())
+      .then((data) => {
+        setMarketPrices(data);
+      })
+      .catch((error) => {
+        console.error("Market price error:", error);
+      });
+  }, []);
 
   const menuItems = [
     "Dashboard",
@@ -48,6 +48,69 @@ function App() {
     "Grievances",
   ];
 
+  const renderPage = () => {
+    if (activePage === "Crop Listings") {
+      return (
+        <div className="page-card">
+          <div className="page-header">
+            <div>
+              <h2>Crop Listings</h2>
+              <p>View all crops listed by farmers.</p>
+            </div>
+
+            <button className="primary-button">
+              + Add Crop
+            </button>
+          </div>
+
+          {cropLots.length === 0 ? (
+            <p>No crop listings found.</p>
+          ) : (
+            <div className="crop-list">
+              {cropLots.map((crop) => (
+                <div className="crop-list-item" key={crop.id}>
+                  <div className="crop-image">
+                    {crop.commodity.toLowerCase() === "onion"
+                      ? "🧅"
+                      : "🌾"}
+                  </div>
+
+                  <div className="crop-info">
+                    <h3>{crop.commodity}</h3>
+
+                    <p>
+                      Quantity: {crop.quantity_kg} kg
+                    </p>
+
+                    <p>
+                      District: {crop.district}
+                    </p>
+
+                    <p>
+                      Quality: {crop.quality_grade || "Not specified"}
+                    </p>
+                  </div>
+
+                  <div className="crop-price">
+                    <span>Expected Price</span>
+                    <strong>
+                      ₹{crop.expected_price}/kg
+                    </strong>
+                  </div>
+
+                  <span className="available">
+                    {crop.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  };
   return (
     <div className="app">
 
@@ -61,15 +124,15 @@ function App() {
         <p className="menu-title">MENU</p>
 
         <nav>
-        {menuItems.map((item) => (
-          <button
-            key={item}
-            className={`menu-item ${activePage === item ? "active" : ""}`}
-            onClick={() => setActivePage(item)}
-          >
-            {item}
-          </button>
-        ))}
+          {menuItems.map((item) => (
+            <button
+              key={item}
+              className={`menu-item ${activePage === item ? "active" : ""}`}
+              onClick={() => setActivePage(item)}
+            >
+              {item}
+            </button>
+          ))}
         </nav>
 
         <div className="sidebar-bottom">
@@ -81,16 +144,36 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
+        {activePage !== "Dashboard" && (
+          <>
+            <header className="topbar">
+              <div>
+                <h1>{activePage}</h1>
+                <p>Manage your agricultural activities.</p>
+              </div>
+
+              <div className="profile">
+                <div className="profile-icon">👨‍🌾</div>
+                <div>
+                  <strong>Farmer</strong>
+                  <span>Demo Account</span>
+                </div>
+              </div>
+            </header>
+
+            {renderPage()}
+          </>
+        )}
 
         {/* Header */}
         <header className="topbar">
           <div>
             <h1>{activePage}</h1>
             <p>
-  {activePage === "Dashboard"
-    ? "Welcome back! Here's what's happening with your crops."
-    : `Manage your ${activePage.toLowerCase()} here.`}
-</p>
+              {activePage === "Dashboard"
+                ? "Welcome back! Here's what's happening with your crops."
+                : `Manage your ${activePage.toLowerCase()} here.`}
+            </p>
           </div>
 
           <div className="profile">
@@ -164,34 +247,34 @@ function App() {
             </div>
 
             {cropLots.length === 0 ? (
-  <p>No crop listings found.</p>
-) : (
-  cropLots.map((crop) => (
-    <div className="crop-item" key={crop.id}>
+              <p>No crop listings found.</p>
+            ) : (
+              cropLots.map((crop) => (
+                <div className="crop-item" key={crop.id}>
 
-      <div className="crop-image">
-        {crop.commodity.toLowerCase() === "onion" ? "🧅" : "🌾"}
-      </div>
+                  <div className="crop-image">
+                    {crop.commodity.toLowerCase() === "onion" ? "🧅" : "🌾"}
+                  </div>
 
-      <div className="crop-info">
-        <h3>{crop.commodity}</h3>
-        <p>
-          {crop.quantity_kg} kg • {crop.district}
-        </p>
-      </div>
+                  <div className="crop-info">
+                    <h3>{crop.commodity}</h3>
+                    <p>
+                      {crop.quantity_kg} kg • {crop.district}
+                    </p>
+                  </div>
 
-      <div className="crop-price">
-        <span>Expected Price</span>
-        <strong>₹{crop.expected_price}/kg</strong>
-      </div>
+                  <div className="crop-price">
+                    <span>Expected Price</span>
+                    <strong>₹{crop.expected_price}/kg</strong>
+                  </div>
 
-      <span className="available">
-        {crop.status}
-      </span>
+                  <span className="available">
+                    {crop.status}
+                  </span>
 
-    </div>
-  ))
-)}
+                </div>
+              ))
+            )}
           </div>
 
           <div className="dashboard-card">
@@ -203,17 +286,17 @@ function App() {
             </div>
 
             {marketPrices.length === 0 ? (
-  <p>No market prices found.</p>
-) : (
-  marketPrices.map((market) => (
-    <div className="market-row" key={market.id}>
-      <span>{market.market_name}</span>
-      <strong>₹{market.modal_price}/kg</strong>
-    </div>
-  ))
-)}
+              <p>No market prices found.</p>
+            ) : (
+              marketPrices.map((market) => (
+                <div className="market-row" key={market.id}>
+                  <span>{market.market_name}</span>
+                  <strong>₹{market.modal_price}/kg</strong>
+                </div>
+              ))
+            )}
 
-</div>
+          </div>
 
         </section>
 
