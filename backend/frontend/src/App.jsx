@@ -6,6 +6,17 @@ function App() {
   const [cropLots, setCropLots] = useState([]);
   const [marketPrices, setMarketPrices] = useState([]);
   const [activePage, setActivePage] = useState("Dashboard");
+  const [showCropForm, setShowCropForm] = useState(false);
+
+const [cropForm, setCropForm] = useState({
+  farmer_id: 1,
+  commodity: "",
+  quantity_kg: "",
+  quality_grade: "",
+  district: "",
+  harvest_date: "",
+  expected_price: "",
+});
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/health")
@@ -36,6 +47,69 @@ function App() {
       });
   }, []);
 
+  const handleCropChange = (event) => {
+  const { name, value } = event.target;
+
+  setCropForm((previous) => ({
+    ...previous,
+    [name]: value,
+  }));
+};
+
+const addCrop = async (event) => {
+  event.preventDefault();
+
+  try {
+    const params = new URLSearchParams({
+      farmer_id: cropForm.farmer_id,
+      commodity: cropForm.commodity,
+      quantity_kg: cropForm.quantity_kg,
+      quality_grade: cropForm.quality_grade,
+      district: cropForm.district,
+      harvest_date: cropForm.harvest_date,
+      expected_price: cropForm.expected_price,
+    });
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/crop-lots?${params.toString()}`,
+      {
+        method: "POST",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      alert(data.error || "Failed to add crop");
+      return;
+    }
+
+    alert("Crop added successfully! 🌾");
+
+    setShowCropForm(false);
+
+    setCropForm({
+      farmer_id: 1,
+      commodity: "",
+      quantity_kg: "",
+      quality_grade: "",
+      district: "",
+      harvest_date: "",
+      expected_price: "",
+    });
+
+    const cropResponse = await fetch(
+      "http://127.0.0.1:8000/api/crop-lots"
+    );
+
+    const cropData = await cropResponse.json();
+
+    setCropLots(cropData);
+  } catch (error) {
+    console.error("Add crop error:", error);
+    alert("Could not connect to the backend.");
+  }
+};
   const menuItems = [
     "Dashboard",
     "Crop Listings",
@@ -54,11 +128,112 @@ function App() {
         <div className="page-card">
           <div className="page-header">
             <div>
+              {showCropForm && (
+  <form className="crop-form" onSubmit={addCrop}>
+
+    <h3>Add New Crop</h3>
+
+    <div className="form-grid">
+
+      <div>
+        <label>Commodity</label>
+        <input
+          name="commodity"
+          value={cropForm.commodity}
+          onChange={handleCropChange}
+          placeholder="e.g. Onion"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Quantity (kg)</label>
+        <input
+          name="quantity_kg"
+          type="number"
+          value={cropForm.quantity_kg}
+          onChange={handleCropChange}
+          placeholder="e.g. 1000"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Quality Grade</label>
+        <input
+          name="quality_grade"
+          value={cropForm.quality_grade}
+          onChange={handleCropChange}
+          placeholder="e.g. A"
+        />
+      </div>
+
+      <div>
+        <label>District</label>
+        <input
+          name="district"
+          value={cropForm.district}
+          onChange={handleCropChange}
+          placeholder="e.g. Nashik"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Harvest Date</label>
+        <input
+          name="harvest_date"
+          type="date"
+          value={cropForm.harvest_date}
+          onChange={handleCropChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Expected Price (₹/kg)</label>
+        <input
+          name="expected_price"
+          type="number"
+          step="0.01"
+          value={cropForm.expected_price}
+          onChange={handleCropChange}
+          placeholder="e.g. 32"
+          required
+        />
+      </div>
+
+    </div>
+
+    <div className="form-buttons">
+
+      <button
+        type="submit"
+        className="primary-button"
+      >
+        Save Crop
+      </button>
+
+      <button
+        type="button"
+        className="cancel-button"
+        onClick={() => setShowCropForm(false)}
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </form>
+)}
               <h2>Crop Listings</h2>
               <p>View all crops listed by farmers.</p>
             </div>
 
-            <button className="primary-button">
+            <button
+              className="primary-button"
+              onClick={() => setShowCropForm(true)}
+            >
               + Add Crop
             </button>
           </div>
