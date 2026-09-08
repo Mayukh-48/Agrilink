@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from passlib.context import CryptContext
 
 from database import engine, get_db, SessionLocal
 from models import (
@@ -15,7 +16,8 @@ from models import (
     Offer,
     Logistics,
     Transaction,
-    Grievance
+    Grievance,
+    User
 )
 from prediction import predict_price
 
@@ -239,6 +241,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
 
 @app.get("/")
 def home():
@@ -906,4 +912,90 @@ def resolve_grievance(
         "grievance_id": grievance.id,
         "status": grievance.status,
         "resolution": grievance.resolution
+    }
+
+@app.post("/api/auth/register")
+def register_user(
+    username: str,
+    password: str,
+    farmer_id: int,
+    db: Session = Depends(get_db)
+):
+    # Check farmer
+    farmer = db.query(Farmer).filter(
+        Farmer.id == farmer_id
+    ).first()
+
+    if farmer is None:
+        return {
+            "error": "Farmer not found"
+        }
+
+    # Check existing username
+    existing_user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if existing_user:
+        return {
+            "error": "Username already exists"
+        }
+
+    # Hash password
+    password_hash = pwd_context.hash(password)
+
+    user = User(
+        farmer_id=farmer_id,
+        username=username,
+        password_hash=password_hash,
+        role="FARMER",
+        is_active=1
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "User registered successfully",
+        "user_id": user.id,
+        "username": user.username,
+        "farmer_id": user.farmer_id,
+        "role": user.role
+    }
+
+@app.post("/api/auth/login")
+def login_user(
+    username: str,
+    password: str,
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if user is None:
+        return {
+            "error": "Invalid username or password"
+        }
+
+    if not user.is_active:
+        return {
+            "error": "User account is inactive"
+        }
+
+    if not pwd_context.verify(
+        password,
+        user.password_hash
+    ):
+        return {
+            "error": "Invalid username or password"
+        }
+
+    return {
+        "message": "Login successful",
+        "user_id": user.id,
+        "username": user.username,
+        "farmer_id": user.farmer_id,
+        "role": user.role
     }
