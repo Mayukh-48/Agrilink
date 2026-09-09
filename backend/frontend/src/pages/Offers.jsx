@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Briefcase, Handshake } from "lucide-react";
 
 function Offers() {
   const [offers, setOffers] = useState([]);
@@ -62,7 +63,7 @@ function Offers() {
       {/* PAGE HEADER */}
       <div className="page-header">
         <div>
-          <h2>Offers 💰</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Briefcase size={22} color="#1b4332" /> Offers</h2>
           <p>
             View and manage offers received from buyers.
           </p>
@@ -83,7 +84,7 @@ function Offers() {
 
               {/* ICON */}
               <div className="crop-image">
-                💰
+                <Handshake size={24} color="#2d6a4f" />
               </div>
 
               {/* OFFER DETAILS */}

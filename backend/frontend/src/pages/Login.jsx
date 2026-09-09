@@ -88,7 +88,7 @@ function Login({ onLogin }) {
               marginBottom: "8px",
             }}
           >
-            🌾
+            C
           </div>
 
           <h1

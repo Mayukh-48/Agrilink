@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import "./PricePrediction.css";
 
 const COMMODITY_EMOJIS = {
-  Onion:  "🧅",
-  Potato: "🥔",
-  Tomato: "🍅",
-  Wheat:  "🌾",
+  Onion:  "",
+  Potato: "",
+  Tomato: "",
+  Wheat:  "",
 };
 
 // Simple SVG line chart — no extra library needed
@@ -188,7 +188,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
     setLoading(false);
   };
 
-  const emoji = COMMODITY_EMOJIS[commodity] || "🌿";
+  const emoji = COMMODITY_EMOJIS[commodity] || "";
 
   return (
     <div className="page-card pp-page">
@@ -196,7 +196,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
       {/* Header */}
       <div className="page-header">
         <div>
-          <h2>Price Prediction 🤖</h2>
+          <h2>Price Prediction</h2>
           <p>ML-powered forecasts from 2020–2026 India APMC data.</p>
         </div>
         <span className="market-badge">{emoji} {commodity}</span>
@@ -214,7 +214,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
             style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '15px', backgroundColor: 'white', color: '#111827', minWidth: '160px' }}
           >
             {commodities.map((c) => (
-              <option key={c} value={c}>{COMMODITY_EMOJIS[c] || "🌿"} {c}</option>
+              <option key={c} value={c}>{COMMODITY_EMOJIS[c] || ""} {c}</option>
             ))}
           </select>
         </div>
@@ -229,7 +229,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
               style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '15px', backgroundColor: 'white', color: '#111827', minWidth: '200px' }}
             >
               {mandis.map((m) => (
-                <option key={m} value={m}>🏪 {m}</option>
+                <option key={m} value={m}>{m}</option>
               ))}
             </select>
           </div>

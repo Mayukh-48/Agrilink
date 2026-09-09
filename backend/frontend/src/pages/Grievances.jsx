@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MessageSquare, FileText } from "lucide-react";
 
 function Grievances() {
   const [grievances, setGrievances] = useState([]);
@@ -108,7 +109,7 @@ function Grievances() {
       {/* HEADER */}
       <div className="page-header">
         <div>
-          <h2>Grievances 📝</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MessageSquare size={22} color="#1b4332" /> Grievances</h2>
           <p>
             Submit and track your complaints and issues.
           </p>
@@ -134,7 +135,7 @@ function Grievances() {
             border: "2px solid #287a49",
           }}
         >
-          <h2>Submit New Grievance 📝</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={20} color="#1b4332" /> Submit New Grievance</h2>
 
           <form
             className="crop-form"
@@ -274,7 +275,7 @@ function Grievances() {
 
                 {/* ICON */}
                 <div className="crop-image">
-                  📝
+                  <MessageSquare size={24} color="#2d6a4f" />
                 </div>
 
                 {/* DETAILS */}

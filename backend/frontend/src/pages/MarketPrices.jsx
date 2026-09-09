@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 
 const CROPS = [
-  { label: "🧅 Onion",  value: "Onion"  },
-  { label: "🥔 Potato", value: "Potato" },
-  { label: "🍅 Tomato", value: "Tomato" },
-  { label: "🌾 Wheat",  value: "Wheat"  },
+  { label: "Onion",  value: "Onion"  },
+  { label: "Potato", value: "Potato" },
+  { label: "Tomato", value: "Tomato" },
+  { label: "Wheat",  value: "Wheat"  },
 ];
 
 function MarketPrices({ onForecast }) {

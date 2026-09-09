@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Truck, Package } from "lucide-react";
 
 function Logistics() {
   const [logistics, setLogistics] = useState([]);
@@ -158,7 +159,7 @@ function Logistics() {
       {/* HEADER */}
       <div className="page-header">
         <div>
-          <h2>Logistics 🚚</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Truck size={22} color="#1b4332" /> Logistics</h2>
           <p>
             Create and track crop pickup and delivery.
           </p>
@@ -185,7 +186,7 @@ function Logistics() {
           }}
         >
 
-          <h2>Create New Shipment 🚚</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Package size={20} color="#1b4332" /> Create New Shipment</h2>
 
           {offers.length === 0 ? (
             <p>
@@ -337,7 +338,7 @@ function Logistics() {
 
                 {/* ICON */}
                 <div className="crop-image">
-                  🚚
+                  <Truck size={24} color="#2d6a4f" />
                 </div>
 
                 {/* DETAILS */}

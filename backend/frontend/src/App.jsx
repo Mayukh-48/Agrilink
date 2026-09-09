@@ -9,11 +9,17 @@ import Logistics from "./pages/Logistics";
 import Payments from "./pages/Payments";
 import Grievances from "./pages/Grievances";
 import Login from "./pages/Login";
+import { 
+  Leaf, LayoutDashboard, List, TrendingUp, LineChart, Users, 
+  Briefcase, Truck, CreditCard, MessageSquare, LogOut, 
+  User, Sprout, Banknote, Handshake, Search 
+} from "lucide-react";
 
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
   const [cropLots, setCropLots] = useState([]);
   const [activePage, setActivePage] = useState("Dashboard");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showCropForm, setShowCropForm] = useState(false);
   const [forecastTarget, setForecastTarget] = useState({ commodity: "Onion", mandi: "", price: "" });
 
@@ -94,7 +100,7 @@ const [loggedInUser, setLoggedInUser] = useState({
         return;
       }
 
-      alert("Crop added successfully! 🌾");
+      alert("Crop added successfully!");
 
       setShowCropForm(false);
 
@@ -274,9 +280,7 @@ const [loggedInUser, setLoggedInUser] = useState({
                 >
 
                   <div className="crop-image">
-                    {crop.commodity.toLowerCase() === "onion"
-                      ? "🧅"
-                      : "🌾"}
+                    <Leaf size={24} color="#2d6a4f" />
                   </div>
 
                   <div className="crop-info">
@@ -350,7 +354,8 @@ return (
       <aside className="sidebar">
 
         <div className="logo">
-          🌾 <span>AgriLink</span>
+          <Leaf size={24} color="#95d5b2" />
+          <span>AgriLink</span>
         </div>
 
         <p className="menu-title">MENU</p>
@@ -372,6 +377,15 @@ return (
                 }
               }}
             >
+              {item === "Dashboard" && <LayoutDashboard size={18} />}
+              {item === "Crop Listings" && <List size={18} />}
+              {item === "Market Prices" && <TrendingUp size={18} />}
+              {item === "Price Prediction" && <LineChart size={18} />}
+              {item === "Buyer Matching" && <Users size={18} />}
+              {item === "Offers" && <Briefcase size={18} />}
+              {item === "Logistics" && <Truck size={18} />}
+              {item === "Payments" && <CreditCard size={18} />}
+              {item === "Grievances" && <MessageSquare size={18} />}
               {item}
             </button>
           ))}
@@ -380,7 +394,7 @@ return (
 
         <div className="sidebar-bottom">
 
-          <p>🌱 Smart Farming</p>
+          <p>Smart Farming</p>
 
           <small>
             Connecting farmers with better markets
@@ -411,7 +425,7 @@ return (
           <div className="profile">
 
             <div className="profile-icon">
-              👨‍🌾
+              <User size={20} />
             </div>
 
             <div>
@@ -472,7 +486,7 @@ return (
               <div className="stat-card">
 
                 <div className="stat-icon">
-                  🌾
+                  <Sprout size={24} color="#2d6a4f" />
                 </div>
 
                 <div>
@@ -490,7 +504,7 @@ return (
               <div className="stat-card">
 
                 <div className="stat-icon">
-                  💰
+                  <Banknote size={24} color="#2d6a4f" />
                 </div>
 
                 <div>
@@ -519,7 +533,7 @@ return (
               <div className="stat-card">
 
                 <div className="stat-icon">
-                  🤝
+                  <Handshake size={24} color="#2d6a4f" />
                 </div>
 
                 <div>
@@ -539,7 +553,7 @@ return (
               <div className="stat-card">
 
                 <div className="stat-icon">
-                  📦
+                  <Truck size={24} color="#2d6a4f" />
                 </div>
 
                 <div>
@@ -590,12 +604,29 @@ return (
 
                 </div>
 
-                {cropLots.length === 0 ? (
+                  <div style={{ marginBottom: "16px", display: "flex", gap: "12px" }}>
+                    <div style={{ position: "relative", flex: 1 }}>
+                      <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+                      <input 
+                        type="text" 
+                        placeholder="Search crops or districts..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px" }}
+                      />
+                    </div>
+                    <select style={{ padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px", backgroundColor: "white" }}>
+                      <option value="all">All Grades</option>
+                      <option value="a">Grade A</option>
+                      <option value="b">Grade B</option>
+                    </select>
+                  </div>
+                {cropLots.filter(c => c.commodity.toLowerCase().includes(searchQuery.toLowerCase()) || c.district.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
                   <p>
                     No crop listings found.
                   </p>
                 ) : (
-                  cropLots.map((crop) => (
+                  cropLots.filter(c => c.commodity.toLowerCase().includes(searchQuery.toLowerCase()) || c.district.toLowerCase().includes(searchQuery.toLowerCase())).map((crop) => (
                     <div
                       className="crop-item"
                       key={crop.id}
@@ -603,10 +634,7 @@ return (
 
                       <div className="crop-image">
 
-                        {crop.commodity
-                          .toLowerCase() === "onion"
-                          ? "🧅"
-                          : "🌾"}
+                        <Leaf size={24} color="#2d6a4f" />
 
                       </div>
 
@@ -663,7 +691,7 @@ return (
                   className="primary-button"
                   onClick={() => setActivePage("Market Prices")}
                 >
-                  📊 View Market Prices
+                  View Market Prices
                 </button>
 
               </div>
@@ -699,7 +727,7 @@ return (
                     setShowCropForm(true);
                   }}
                 >
-                  🌾
+                  <Sprout size={32} strokeWidth={1.5} color="#2d6a4f" />
                   <span>
                     List New Crop
                   </span>
@@ -713,7 +741,7 @@ return (
                     setShowCropForm(false);
                   }}
                 >
-                  📊
+                  <TrendingUp size={32} strokeWidth={1.5} color="#2d6a4f" />
                   <span>
                     Check Market Prices
                   </span>
@@ -727,7 +755,7 @@ return (
                     setShowCropForm(false);
                   }}
                 >
-                  🤖
+                  <LineChart size={32} strokeWidth={1.5} color="#2d6a4f" />
                   <span>
                     Predict Future Price
                   </span>
@@ -741,7 +769,7 @@ return (
                     setShowCropForm(false);
                   }}
                 >
-                  🤝
+                  <Users size={32} strokeWidth={1.5} color="#2d6a4f" />
                   <span>
                     Find Buyers
                   </span>

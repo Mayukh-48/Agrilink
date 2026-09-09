@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Users, Handshake, Send } from "lucide-react";
 
 function BuyerMatching() {
   const [cropLotId, setCropLotId] = useState(1);
@@ -117,7 +118,7 @@ function BuyerMatching() {
       {/* PAGE HEADER */}
       <div className="page-header">
         <div>
-          <h2>Buyer Matching 🤝</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={22} color="#1b4332" /> Buyer Matching</h2>
           <p>Find buyers that best match your crop.</p>
         </div>
       </div>
@@ -167,7 +168,7 @@ function BuyerMatching() {
 
                 {/* ICON */}
                 <div className="crop-image">
-                  🤝
+                  <Handshake size={24} color="#2d6a4f" />
                 </div>
 
                 {/* BUYER DETAILS */}
@@ -241,7 +242,7 @@ function BuyerMatching() {
 
             <div>
               <h2>
-                Send Offer 💰
+                <Send size={20} style={{marginRight: '8px', verticalAlign: 'text-bottom'}} />Send Offer
               </h2>
 
               <p>

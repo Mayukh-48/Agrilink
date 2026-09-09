@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CreditCard, Banknote } from "lucide-react";
 
 function Payments() {
   const [payments, setPayments] = useState([]);
@@ -142,7 +143,7 @@ function Payments() {
       {/* HEADER */}
       <div className="page-header">
         <div>
-          <h2>Payments 💳</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CreditCard size={22} color="#1b4332" /> Payments</h2>
           <p>
             Make payments for accepted agricultural offers.
           </p>
@@ -169,7 +170,7 @@ function Payments() {
           }}
         >
 
-          <h2>Create Payment 💳</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Banknote size={20} color="#1b4332" /> Create Payment</h2>
 
           {offers.length === 0 ? (
             <p>
@@ -321,7 +322,7 @@ function Payments() {
 
                 {/* ICON */}
                 <div className="crop-image">
-                  💳
+                  <CreditCard size={24} color="#2d6a4f" />
                 </div>
 
                 {/* DETAILS */}
