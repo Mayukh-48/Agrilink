@@ -42,29 +42,29 @@ def seed_initial_data(db: Session):
     if existing_prices == 0:
         prices = [
             # ── Onion ──────────────────────────────────────────────────────────────
-            MarketPrice(market_name="Bangalore APMC",    district="Bangalore",  commodity="Onion",  variety="Red Onion",   min_price=25, max_price=38, modal_price=31, arrival_quantity=850),
-            MarketPrice(market_name="Kayamkulam APMC",   district="Alappuzha",  commodity="Onion",  variety="Red Onion",   min_price=24, max_price=36, modal_price=30, arrival_quantity=720),
-            MarketPrice(market_name="Hubli (Amaragol)",   district="Dharwad",    commodity="Onion",  variety="Red Onion",   min_price=22, max_price=34, modal_price=28, arrival_quantity=640),
-            MarketPrice(market_name="Pratapgarh APMC",   district="Pratapgarh", commodity="Onion",  variety="Red Onion",   min_price=26, max_price=39, modal_price=33, arrival_quantity=780),
-            MarketPrice(market_name="Palakkad APMC",     district="Palakkad",   commodity="Onion",  variety="Red Onion",   min_price=28, max_price=41, modal_price=35, arrival_quantity=560),
+            MarketPrice(market_name="Bangalore",         district="Bangalore",  commodity="Onion",  variety="Red Onion",   min_price=25, max_price=38, modal_price=31, arrival_quantity=850),
+            MarketPrice(market_name="Kayamkulam",        district="Alappuzha",  commodity="Onion",  variety="Red Onion",   min_price=24, max_price=36, modal_price=30, arrival_quantity=720),
+            MarketPrice(market_name="Hubli (Amaragol)",  district="Dharwad",    commodity="Onion",  variety="Red Onion",   min_price=22, max_price=34, modal_price=28, arrival_quantity=640),
+            MarketPrice(market_name="Pratapgarh",        district="Pratapgarh", commodity="Onion",  variety="Red Onion",   min_price=26, max_price=39, modal_price=33, arrival_quantity=780),
+            MarketPrice(market_name="Palakkad",          district="Palakkad",   commodity="Onion",  variety="Red Onion",   min_price=28, max_price=41, modal_price=35, arrival_quantity=560),
             # ── Potato ─────────────────────────────────────────────────────────────
-            MarketPrice(market_name="Durgapur APMC",     district="Burdwan",    commodity="Potato", variety="Jyoti",       min_price=12, max_price=20, modal_price=16, arrival_quantity=1200),
-            MarketPrice(market_name="English Bazar APMC",district="Malda",      commodity="Potato", variety="Jyoti",       min_price=11, max_price=19, modal_price=15, arrival_quantity=950),
-            MarketPrice(market_name="Faizabad APMC",     district="Ayodhya",    commodity="Potato", variety="Kufri Pukhraj",min_price=13, max_price=21, modal_price=17, arrival_quantity=870),
-            MarketPrice(market_name="Siwan APMC",        district="Siwan",      commodity="Potato", variety="Jyoti",       min_price=12, max_price=20, modal_price=16, arrival_quantity=730),
-            MarketPrice(market_name="Sultanpur APMC",    district="Sultanpur",  commodity="Potato", variety="Kufri Pukhraj",min_price=14, max_price=22, modal_price=18, arrival_quantity=810),
+            MarketPrice(market_name="Durgapur",          district="Burdwan",    commodity="Potato", variety="Jyoti",       min_price=12, max_price=20, modal_price=16, arrival_quantity=1200),
+            MarketPrice(market_name="English Bazar",     district="Malda",      commodity="Potato", variety="Jyoti",       min_price=11, max_price=19, modal_price=15, arrival_quantity=950),
+            MarketPrice(market_name="Faizabad",          district="Ayodhya",    commodity="Potato", variety="Kufri Pukhraj",min_price=13, max_price=21, modal_price=17, arrival_quantity=870),
+            MarketPrice(market_name="Siwan",             district="Siwan",      commodity="Potato", variety="Jyoti",       min_price=12, max_price=20, modal_price=16, arrival_quantity=730),
+            MarketPrice(market_name="Sultanpur",         district="Sultanpur",  commodity="Potato", variety="Kufri Pukhraj",min_price=14, max_price=22, modal_price=18, arrival_quantity=810),
             # ── Tomato ─────────────────────────────────────────────────────────────
-            MarketPrice(market_name="Nagpur APMC",       district="Nagpur",     commodity="Tomato", variety="Hybrid",      min_price=18, max_price=35, modal_price=26, arrival_quantity=680),
-            MarketPrice(market_name="Sirsa APMC",        district="Sirsa",      commodity="Tomato", variety="Deshi",       min_price=15, max_price=30, modal_price=22, arrival_quantity=540),
-            MarketPrice(market_name="Sultanpur (Tomato)",district="Sultanpur",  commodity="Tomato", variety="Hybrid",      min_price=20, max_price=38, modal_price=28, arrival_quantity=460),
-            MarketPrice(market_name="Kottayam APMC",     district="Kottayam",   commodity="Tomato", variety="Hybrid",      min_price=22, max_price=40, modal_price=30, arrival_quantity=390),
-            MarketPrice(market_name="Dadri APMC",        district="Gautam Buddha Nagar", commodity="Tomato", variety="Deshi", min_price=16, max_price=32, modal_price=24, arrival_quantity=510),
+            MarketPrice(market_name="Nagpur",            district="Nagpur",     commodity="Tomato", variety="Hybrid",      min_price=18, max_price=35, modal_price=26, arrival_quantity=680),
+            MarketPrice(market_name="Sirsa",             district="Sirsa",      commodity="Tomato", variety="Deshi",       min_price=15, max_price=30, modal_price=22, arrival_quantity=540),
+            MarketPrice(market_name="Sultanpur",         district="Sultanpur",  commodity="Tomato", variety="Hybrid",      min_price=20, max_price=38, modal_price=28, arrival_quantity=460),
+            MarketPrice(market_name="Kottayam",          district="Kottayam",   commodity="Tomato", variety="Hybrid",      min_price=22, max_price=40, modal_price=30, arrival_quantity=390),
+            MarketPrice(market_name="Dadri",             district="Gautam Buddha Nagar", commodity="Tomato", variety="Deshi", min_price=16, max_price=32, modal_price=24, arrival_quantity=510),
             # ── Wheat ──────────────────────────────────────────────────────────────
-            MarketPrice(market_name="Sehore APMC",       district="Sehore",     commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=26, modal_price=23, arrival_quantity=3200),
-            MarketPrice(market_name="Ganjbasoda APMC",   district="Vidisha",    commodity="Wheat",  variety="HI-8498",     min_price=20, max_price=25, modal_price=22, arrival_quantity=2800),
-            MarketPrice(market_name="Ashta APMC",        district="Sehore",     commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=27, modal_price=23, arrival_quantity=2600),
-            MarketPrice(market_name="Dhar APMC",         district="Dhar",       commodity="Wheat",  variety="HI-8498",     min_price=20, max_price=26, modal_price=22, arrival_quantity=2400),
-            MarketPrice(market_name="Kalapipal APMC",    district="Shajapur",   commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=27, modal_price=24, arrival_quantity=2100),
+            MarketPrice(market_name="Sehore",            district="Sehore",     commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=26, modal_price=23, arrival_quantity=3200),
+            MarketPrice(market_name="Ganjbasoda",        district="Vidisha",    commodity="Wheat",  variety="HI-8498",     min_price=20, max_price=25, modal_price=22, arrival_quantity=2800),
+            MarketPrice(market_name="Ashta",             district="Sehore",     commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=27, modal_price=23, arrival_quantity=2600),
+            MarketPrice(market_name="Dhar",              district="Dhar",       commodity="Wheat",  variety="HI-8498",     min_price=20, max_price=26, modal_price=22, arrival_quantity=2400),
+            MarketPrice(market_name="Kalapipal",         district="Shajapur",   commodity="Wheat",  variety="Lok-1",       min_price=21, max_price=27, modal_price=24, arrival_quantity=2100),
         ]
         db.add_all(prices)
         db.commit()
