@@ -772,6 +772,7 @@ return (
         {/* Price Prediction */}
         {activePage === "Price Prediction" && (
           <PricePrediction
+            key={`${forecastTarget.commodity}-${forecastTarget.mandi}-${forecastTarget.price}`}
             initialCommodity={forecastTarget.commodity}
             initialMandi={forecastTarget.mandi}
             initialPrice={forecastTarget.price}

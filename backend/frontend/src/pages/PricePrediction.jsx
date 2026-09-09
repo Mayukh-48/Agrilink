@@ -138,23 +138,22 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
       .catch(() => {});
   }, []);
 
-  // When crop changes: fetch its mandis, reset mandi + predictions
+  // When crop changes: fetch its mandis, update mandi list
   useEffect(() => {
     setPredictions([]);
     setStats(null);
-    setMandi("");
     fetch(`http://127.0.0.1:8000/api/prediction/mandis?commodity=${commodity}`)
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length) {
           setMandis(data);
-          setMandi(data[0]); // auto-select first mandi
+          setMandi((prev) => (data.includes(prev) ? prev : data[0]));
         }
       })
       .catch(() => {});
   }, [commodity]);
 
-  // When mandi changes: fetch stats for that specific mandi, auto-fill price
+  // When mandi changes: fetch stats for that specific mandi, auto-fill price if empty
   useEffect(() => {
     if (!mandi) return;
     setStats(null);
@@ -164,7 +163,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
       .then((data) => {
         if (data && data.latest) {
           setStats(data);
-          setCurrentPrice(String(data.latest)); // auto-fill with latest mandi price
+          setCurrentPrice((prev) => prev || String(data.latest));
         }
       })
       .catch(() => {});
