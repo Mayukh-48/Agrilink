@@ -118,12 +118,12 @@ function StatPill({ label, value }) {
   );
 }
 
-export default function PricePrediction() {
+export default function PricePrediction({ initialCommodity = "Onion", initialMandi = "", initialPrice = "" }) {
   const [commodities,   setCommodities]   = useState(["Onion", "Potato", "Tomato", "Wheat"]);
-  const [commodity,     setCommodity]     = useState("Onion");
+  const [commodity,     setCommodity]     = useState(initialCommodity);
   const [mandis,        setMandis]        = useState([]);
-  const [mandi,         setMandi]         = useState("");
-  const [currentPrice,  setCurrentPrice]  = useState("");
+  const [mandi,         setMandi]         = useState(initialMandi);
+  const [currentPrice,  setCurrentPrice]  = useState(initialPrice);
   const [days,          setDays]          = useState(7);
   const [predictions,   setPredictions]   = useState([]);
   const [stats,         setStats]         = useState(null);

@@ -13,9 +13,9 @@ import Login from "./pages/Login";
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
   const [cropLots, setCropLots] = useState([]);
-  const [marketPrices, setMarketPrices] = useState([]);
   const [activePage, setActivePage] = useState("Dashboard");
   const [showCropForm, setShowCropForm] = useState(false);
+  const [forecastTarget, setForecastTarget] = useState({ commodity: "Onion", mandi: "", price: "" });
 
   const [cropForm, setCropForm] = useState({
     farmer_id: 1,
@@ -54,15 +54,6 @@ const [loggedInUser, setLoggedInUser] = useState({
       })
       .catch((error) => {
         console.error("Crop lot error:", error);
-      });
-
-    fetch("http://127.0.0.1:8000/api/market/prices?commodity=Onion")
-      .then((response) => response.json())
-      .then((data) => {
-        setMarketPrices(data);
-      })
-      .catch((error) => {
-        console.error("Market price error:", error);
       });
   }, []);
 
@@ -658,43 +649,22 @@ return (
               <div className="dashboard-card">
 
                 <div className="card-header">
-
                   <div>
-
-                    <h2>
-                      Market Snapshot
-                    </h2>
-
-                    <p>
-                      Current onion prices
-                    </p>
-
+                    <h2>Market Snapshot</h2>
+                    <p>Live APMC prices across all crops</p>
                   </div>
-
                 </div>
 
-                {marketPrices.length === 0 ? (
-                  <p>
-                    No market prices found.
-                  </p>
-                ) : (
-                  marketPrices.map((market) => (
-                    <div
-                      className="market-row"
-                      key={market.id}
-                    >
+                <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "12px" }}>
+                  View current prices for Onion, Potato, Tomato &amp; Wheat across major mandis.
+                </p>
 
-                      <span>
-                        {market.market_name}
-                      </span>
-
-                      <strong>
-                        ₹{market.modal_price}/kg
-                      </strong>
-
-                    </div>
-                  ))
-                )}
+                <button
+                  className="primary-button"
+                  onClick={() => setActivePage("Market Prices")}
+                >
+                  📊 View Market Prices
+                </button>
 
               </div>
 
@@ -792,13 +762,20 @@ return (
         {/* Market Prices */}
         {activePage === "Market Prices" && (
           <MarketPrices
-            marketPrices={marketPrices}
+            onForecast={(commodity, mandi, price) => {
+              setForecastTarget({ commodity, mandi, price: String(price) });
+              setActivePage("Price Prediction");
+            }}
           />
         )}
 
         {/* Price Prediction */}
         {activePage === "Price Prediction" && (
-          <PricePrediction />
+          <PricePrediction
+            initialCommodity={forecastTarget.commodity}
+            initialMandi={forecastTarget.mandi}
+            initialPrice={forecastTarget.price}
+          />
         )}
 
         {/* Buyer Matching */}
