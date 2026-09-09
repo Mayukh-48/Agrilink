@@ -121,6 +121,8 @@ function StatPill({ label, value }) {
 export default function PricePrediction() {
   const [commodities,   setCommodities]   = useState(["Onion", "Potato", "Tomato", "Wheat"]);
   const [commodity,     setCommodity]     = useState("Onion");
+  const [mandis,        setMandis]        = useState([]);
+  const [mandi,         setMandi]         = useState("");
   const [currentPrice,  setCurrentPrice]  = useState("");
   const [days,          setDays]          = useState(7);
   const [predictions,   setPredictions]   = useState([]);
@@ -136,23 +138,46 @@ export default function PricePrediction() {
       .catch(() => {});
   }, []);
 
-  // Fetch historical stats when commodity changes
+  // When crop changes: fetch its mandis, reset mandi + predictions
   useEffect(() => {
-    setStats(null);
     setPredictions([]);
-    fetch(`http://127.0.0.1:8000/api/prediction/stats?commodity=${commodity}`)
+    setStats(null);
+    setMandi("");
+    fetch(`http://127.0.0.1:8000/api/prediction/mandis?commodity=${commodity}`)
       .then((r) => r.json())
-      .then((data) => { if (data && data.latest) setStats(data); })
+      .then((data) => {
+        if (Array.isArray(data) && data.length) {
+          setMandis(data);
+          setMandi(data[0]); // auto-select first mandi
+        }
+      })
       .catch(() => {});
   }, [commodity]);
+
+  // When mandi changes: fetch stats for that specific mandi, auto-fill price
+  useEffect(() => {
+    if (!mandi) return;
+    setStats(null);
+    setPredictions([]);
+    fetch(`http://127.0.0.1:8000/api/prediction/stats?commodity=${commodity}&mandi=${encodeURIComponent(mandi)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.latest) {
+          setStats(data);
+          setCurrentPrice(String(data.latest)); // auto-fill with latest mandi price
+        }
+      })
+      .catch(() => {});
+  }, [commodity, mandi]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError("");
     try {
+      const mandiParam = mandi ? `&mandi=${encodeURIComponent(mandi)}` : "";
       const resp = await fetch(
-        `http://127.0.0.1:8000/api/prediction/price?current_price=${currentPrice}&days=${days}&commodity=${commodity}`
+        `http://127.0.0.1:8000/api/prediction/price?current_price=${currentPrice}&days=${days}&commodity=${commodity}${mandiParam}`
       );
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.detail || "Prediction failed");
@@ -178,21 +203,39 @@ export default function PricePrediction() {
         <span className="market-badge">{emoji} {commodity}</span>
       </div>
 
-      {/* Commodity dropdown */}
-      <div className="pp-commodity-dropdown" style={{ marginBottom: '20px' }}>
-        <label htmlFor="commodity-select" style={{ marginRight: '10px', fontWeight: 'bold' }}>Select Commodity:</label>
-        <select 
-          id="commodity-select"
-          value={commodity}
-          onChange={(e) => { setCommodity(e.target.value); setPredictions([]); }}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white', color: '#111827' }}
-        >
-          {commodities.map((c) => (
-            <option key={c} value={c}>
-              {COMMODITY_EMOJIS[c] || "🌿"} {c}
-            </option>
-          ))}
-        </select>
+      {/* Selectors row: Crop + Mandi */}
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px', alignItems: 'flex-end' }}>
+
+        <div className="pp-commodity-dropdown">
+          <label htmlFor="commodity-select" style={{ display: 'block', marginBottom: '4px', fontWeight: '600', fontSize: '13px', color: '#374151' }}>Crop</label>
+          <select
+            id="commodity-select"
+            value={commodity}
+            onChange={(e) => { setCommodity(e.target.value); setPredictions([]); }}
+            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '15px', backgroundColor: 'white', color: '#111827', minWidth: '160px' }}
+          >
+            {commodities.map((c) => (
+              <option key={c} value={c}>{COMMODITY_EMOJIS[c] || "🌿"} {c}</option>
+            ))}
+          </select>
+        </div>
+
+        {mandis.length > 0 && (
+          <div className="pp-commodity-dropdown">
+            <label htmlFor="mandi-select" style={{ display: 'block', marginBottom: '4px', fontWeight: '600', fontSize: '13px', color: '#374151' }}>Mandi</label>
+            <select
+              id="mandi-select"
+              value={mandi}
+              onChange={(e) => { setMandi(e.target.value); setPredictions([]); }}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '15px', backgroundColor: 'white', color: '#111827', minWidth: '200px' }}
+            >
+              {mandis.map((m) => (
+                <option key={m} value={m}>🏪 {m}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
       </div>
 
       {/* Historical stats strip */}
@@ -258,7 +301,7 @@ export default function PricePrediction() {
         <div className="pp-results">
 
           <div className="pp-results-header">
-            <h3>Predicted Prices — next {days} days</h3>
+          <h3>Predicted Prices — next {days} days {mandi && <span style={{fontSize:'13px',color:'#6b7280',fontWeight:'400'}}>({mandi})</span>}</h3>
             <TrendBadge predictions={predictions} currentPrice={Number(currentPrice)} />
           </div>
 

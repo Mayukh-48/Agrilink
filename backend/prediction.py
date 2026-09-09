@@ -1,79 +1,103 @@
-"""
-prediction.py — Price prediction using trained ML models.
-Falls back to a simple linear formula if no .pkl is found.
+﻿"""
+prediction.py - Price prediction using trained ML models.
+Supports both national (crop-level) and mandi-specific models.
 """
 
-import os
+import os, re
 from datetime import date, timedelta
-
 import joblib
 
-# Load all available models at import time
-_MODELS = {}
-_STATS = {}
+_DIR = os.path.dirname(os.path.abspath(__file__))
 
-_COMMODITY_FILES = {
-    'Onion':  'onion_model.pkl',
-    'Potato': 'potato_model.pkl',
-    'Tomato': 'tomato_model.pkl',
-    'Wheat':  'wheat_model.pkl',
+# Top 5 mandis per crop (mirrors train_mandi_model.py)
+MANDI_MAP = {
+    "Onion":  ["Bangalore", "Kayamkulam", "Hubli (Amaragol)", "Pratapgarh", "Palakkad"],
+    "Potato": ["Durgapur", "English Bazar", "Faizabad", "Siwan", "Sultanpur"],
+    "Tomato": ["Nagpur", "Sirsa", "Sultanpur", "Kottayam", "Dadri"],
+    "Wheat":  ["Sehore", "Ganjbasoda", "Ashta", "Dhar", "Kalapipal"],
 }
 
-for _name, _fname in _COMMODITY_FILES.items():
-    _path = os.path.join(os.path.dirname(__file__), _fname)
-    if os.path.exists(_path):
-        _data = joblib.load(_path)
-        _MODELS[_name] = _data['model']
-        _STATS[_name]  = _data['stats']
+# National models (fallback)
+_NATIONAL_MODELS = {}
+_NATIONAL_STATS  = {}
+for _crop, _fname in {
+    "Onion": "onion_model.pkl", "Potato": "potato_model.pkl",
+    "Tomato": "tomato_model.pkl", "Wheat": "wheat_model.pkl",
+}.items():
+    _p = os.path.join(_DIR, _fname)
+    if os.path.exists(_p):
+        _d = joblib.load(_p)
+        _NATIONAL_MODELS[_crop] = _d["model"]
+        _NATIONAL_STATS[_crop]  = _d["stats"]
+
+# Mandi-specific models: { crop: { mandi: { model, stats } } }
+def _safe(s):
+    return re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_")
+
+_MANDI_MODELS = {}
+for _crop, _mandis in MANDI_MAP.items():
+    _MANDI_MODELS[_crop] = {}
+    for _mandi in _mandis:
+        _p = os.path.join(_DIR, f"{_crop.lower()}_{_safe(_mandi)}_model.pkl")
+        if os.path.exists(_p):
+            _d = joblib.load(_p)
+            _MANDI_MODELS[_crop][_mandi] = _d
 
 
 def available_commodities():
-    """Return list of commodities we have trained models for."""
-    if _MODELS:
-        return list(_MODELS.keys())
-    # fallback: at least offer Onion
-    return ['Onion', 'Potato', 'Tomato', 'Wheat']
+    return list(MANDI_MAP.keys())
 
 
-def predict_price(current_price: float, days: int = 7, commodity: str = 'Onion'):
-    """
-    Predict future prices.
-    Uses a trained GradientBoosting model when available;
-    falls back to a simple trend formula otherwise.
+def available_mandis(commodity: str):
+    """Return the list of mandis that have trained models for this crop."""
+    crop_mandis = _MANDI_MODELS.get(commodity, {})
+    loaded = [m for m in MANDI_MAP.get(commodity, []) if m in crop_mandis]
+    return loaded if loaded else MANDI_MAP.get(commodity, [])
 
-    current_price is in Rs/kg (from the UI).
-    The model was trained on Rs/quintal, so we convert internally.
-    """
+
+def _predict(model, current_price: float, days: int):
     predictions = []
-    model = _MODELS.get(commodity)
-
-    # Convert user's Rs/kg input to Rs/quintal for the model
     lag_quintal = current_price * 100
-
     for day in range(1, days + 1):
-        target_date = date.today() + timedelta(days=day)
-
-        if model is not None:
-            doy   = target_date.timetuple().tm_yday
-            month = target_date.month
-            year  = target_date.year
-            predicted_quintal = float(model.predict([[year, month, doy, lag_quintal]])[0])
-            predicted_per_kg  = round(predicted_quintal / 100, 2)
-            # Roll lag forward so next day's prediction reacts to this one
-            lag_quintal = predicted_quintal
-        else:
-            # ponytail: fallback formula, replace when model exists
-            predicted_per_kg = round(current_price * (1 + 0.01 * day), 2)
-
+        d = date.today() + timedelta(days=day)
+        doy = d.timetuple().tm_yday
+        predicted_quintal = float(model.predict([[d.year, d.month, doy, lag_quintal]])[0])
+        lag_quintal = predicted_quintal
         predictions.append({
-            'date':            str(target_date),
-            'predicted_price': predicted_per_kg,
+            "date": str(d),
+            "predicted_price": round(predicted_quintal / 100, 2),
         })
-
     return predictions
 
 
+def predict_price(current_price: float, days: int = 7, commodity: str = "Onion", mandi: str = None):
+    """
+    Predict future prices.
+    If mandi is provided and a mandi model exists, uses it.
+    Falls back to national model, then simple trend formula.
+    """
+    # Try mandi-specific model first
+    if mandi:
+        mandi_data = _MANDI_MODELS.get(commodity, {}).get(mandi)
+        if mandi_data:
+            return _predict(mandi_data["model"], current_price, days)
 
-def get_commodity_stats(commodity: str = 'Onion'):
-    """Return historical stats for a commodity (for the UI info strip)."""
-    return _STATS.get(commodity, {})
+    # Fallback: national model
+    model = _NATIONAL_MODELS.get(commodity)
+    if model:
+        return _predict(model, current_price, days)
+
+    # Last resort: simple trend
+    return [
+        {"date": str(date.today() + timedelta(days=i)), "predicted_price": round(current_price * (1 + 0.01 * i), 2)}
+        for i in range(1, days + 1)
+    ]
+
+
+def get_commodity_stats(commodity: str = "Onion", mandi: str = None):
+    """Return historical stats for a commodity/mandi combo."""
+    if mandi:
+        mandi_data = _MANDI_MODELS.get(commodity, {}).get(mandi)
+        if mandi_data:
+            return mandi_data["stats"]
+    return _NATIONAL_STATS.get(commodity, {})

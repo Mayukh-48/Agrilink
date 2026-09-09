@@ -19,7 +19,7 @@ from models import (
     Grievance,
     User
 )
-from prediction import predict_price, available_commodities, get_commodity_stats
+from prediction import predict_price, available_commodities, available_mandis, get_commodity_stats
 
 pwd_context = CryptContext(
     schemes=["bcrypt"],
@@ -1021,21 +1021,29 @@ def get_commodities():
     return available_commodities()
 
 
+@app.get("/api/prediction/mandis")
+def get_mandis(commodity: str = "Onion"):
+    """Return the list of mandis available for a given commodity."""
+    return available_mandis(commodity)
+
+
 @app.get("/api/prediction/price")
 def get_predicted_price(
     current_price: float,
     days: int = 7,
-    commodity: str = "Onion"
+    commodity: str = "Onion",
+    mandi: str = None
 ):
-    """Predict future prices for the given commodity."""
+    """Predict future prices for the given commodity and mandi."""
     return predict_price(
         current_price=current_price,
         days=days,
-        commodity=commodity
+        commodity=commodity,
+        mandi=mandi
     )
 
 
 @app.get("/api/prediction/stats")
-def get_prediction_stats(commodity: str = "Onion"):
-    """Return historical stats (mean/min/max/latest) for a commodity."""
-    return get_commodity_stats(commodity)
+def get_prediction_stats(commodity: str = "Onion", mandi: str = None):
+    """Return historical stats (mean/min/max/latest) for a commodity/mandi."""
+    return get_commodity_stats(commodity, mandi)
