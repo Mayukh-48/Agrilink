@@ -9,16 +9,19 @@ import Logistics from "./pages/Logistics";
 import Payments from "./pages/Payments";
 import Grievances from "./pages/Grievances";
 import Login from "./pages/Login";
-import { 
-  Leaf, LayoutDashboard, List, TrendingUp, LineChart, Users, 
-  Briefcase, Truck, CreditCard, MessageSquare, LogOut, 
-  User, Sprout, Banknote, Handshake, Search 
+import BuyerDashboard from "./pages/BuyerDashboard";
+import BuyerCropListings from "./pages/BuyerCropListings";
+import {
+  Leaf, LayoutDashboard, List, TrendingUp, LineChart, Users,
+  Briefcase, Truck, CreditCard, MessageSquare, LogOut,
+  User, Sprout, Banknote, Handshake, Search
 } from "lucide-react";
 
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
   const [cropLots, setCropLots] = useState([]);
   const [activePage, setActivePage] = useState("Dashboard");
+  const [selectedCropLot, setSelectedCropLot] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCropForm, setShowCropForm] = useState(false);
   const [forecastTarget, setForecastTarget] = useState({ commodity: "Onion", mandi: "", price: "" });
@@ -34,14 +37,14 @@ function App() {
   });
 
   const [isLoggedIn, setIsLoggedIn] = useState(
-  !!localStorage.getItem("user_id")
-);
+    !!localStorage.getItem("user_id")
+  );
 
-const [loggedInUser, setLoggedInUser] = useState({
-  username: localStorage.getItem("username") || "",
-  farmer_id: localStorage.getItem("farmer_id") || "",
-  role: localStorage.getItem("role") || "",
-});
+  const [loggedInUser, setLoggedInUser] = useState({
+    username: localStorage.getItem("username") || "",
+    farmer_id: localStorage.getItem("farmer_id") || "",
+    role: localStorage.getItem("role") || "",
+  });
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/health")
@@ -127,19 +130,38 @@ const [loggedInUser, setLoggedInUser] = useState({
     }
   };
 
-  const menuItems = [
-    "Dashboard",
-    "Crop Listings",
-    "Market Prices",
-    "Price Prediction",
-    "Buyer Matching",
-    "Offers",
-    "Logistics",
-    "Payments",
-    "Grievances",
-  ];
+  const menuItems =
+    loggedInUser.role === "BUYER"
+      ? [
+        "Dashboard",
+        "Crop Listings",
+        "Offers",
+        "Logistics",
+        "Payments",
+        "Grievances",
+      ]
+      : [
+        "Dashboard",
+        "Crop Listings",
+        "Market Prices",
+        "Price Prediction",
+        "Buyer Matching",
+        "Offers",
+        "Logistics",
+        "Payments",
+        "Grievances",
+      ];
 
   const renderPage = () => {
+    if (activePage === "Crop Listings" && loggedInUser.role === "BUYER") {
+      return (
+        <BuyerCropListings
+          cropLots={cropLots}
+          setActivePage={setActivePage}
+          setSelectedCropLot={setSelectedCropLot}
+        />
+      );
+    }
     if (activePage === "Crop Listings") {
       return (
         <div className="page-card">
@@ -332,23 +354,23 @@ const [loggedInUser, setLoggedInUser] = useState({
   };
 
   const handleLogin = (userData) => {
-  setIsLoggedIn(true);
+    setIsLoggedIn(true);
 
-  setLoggedInUser({
-    username: userData.username,
-    farmer_id: userData.farmer_id,
-    role: userData.role,
-  });
+    setLoggedInUser({
+      username: userData.username,
+      farmer_id: userData.farmer_id,
+      role: userData.role,
+    });
 
-  setActivePage("Dashboard");
-};
+    setActivePage("Dashboard");
+  };
 
   if (!isLoggedIn) {
-  return <Login onLogin={handleLogin} />;
-}
+    return <Login onLogin={handleLogin} />;
+  }
 
-return (
-  <div className="app">
+  return (
+    <div className="app">
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -365,10 +387,13 @@ return (
           {menuItems.map((item) => (
             <button
               key={item}
-              className={`menu-item ${
-                activePage === item ? "active" : ""
-              }`}
+              className={`menu-item ${activePage === item ? "active" : ""
+                }`}
               onClick={() => {
+                if (item === "Buyer Matching") {
+                  setSelectedCropLot(null);
+                }
+
                 setActivePage(item);
 
                 // Close crop form when leaving Crop Listings
@@ -460,7 +485,7 @@ return (
         </header>
 
         {/* Dashboard */}
-        {activePage === "Dashboard" && (
+        {activePage === "Dashboard" && loggedInUser.role !== "BUYER" && (
           <>
 
             {/* Status */}
@@ -604,23 +629,23 @@ return (
 
                 </div>
 
-                  <div style={{ marginBottom: "16px", display: "flex", gap: "12px" }}>
-                    <div style={{ position: "relative", flex: 1 }}>
-                      <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
-                      <input 
-                        type="text" 
-                        placeholder="Search crops or districts..." 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px" }}
-                      />
-                    </div>
-                    <select style={{ padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px", backgroundColor: "white" }}>
-                      <option value="all">All Grades</option>
-                      <option value="a">Grade A</option>
-                      <option value="b">Grade B</option>
-                    </select>
+                <div style={{ marginBottom: "16px", display: "flex", gap: "12px" }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+                    <input
+                      type="text"
+                      placeholder="Search crops or districts..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px" }}
+                    />
                   </div>
+                  <select style={{ padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: "9px", fontSize: "13.5px", backgroundColor: "white" }}>
+                    <option value="all">All Grades</option>
+                    <option value="a">Grade A</option>
+                    <option value="b">Grade B</option>
+                  </select>
+                </div>
                 {cropLots.filter(c => c.commodity.toLowerCase().includes(searchQuery.toLowerCase()) || c.district.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
                   <p>
                     No crop listings found.
@@ -782,6 +807,14 @@ return (
           </>
         )}
 
+        {/* Buyer Dashboard */}
+        {activePage === "Dashboard" && loggedInUser.role === "BUYER" && (
+          <BuyerDashboard
+            cropLots={cropLots}
+            setActivePage={setActivePage}
+          />
+        )}
+
         {/* Crop Listings */}
         {activePage === "Crop Listings" && (
           renderPage()
@@ -809,7 +842,9 @@ return (
 
         {/* Buyer Matching */}
         {activePage === "Buyer Matching" && (
-          <BuyerMatching />
+          <BuyerMatching
+            selectedCropLot={selectedCropLot}
+          />
         )}
 
         {/* Offers */}

@@ -3,6 +3,7 @@ import { useState } from "react";
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("FARMER");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,21 +33,25 @@ function Login({ onLogin }) {
         return;
       }
 
-      // Save logged-in farmer information
+      // Make sure the selected role matches the account role
+      if (data.role !== role) {
+        setError(
+          `This account is registered as a ${data.role === "BUYER" ? "Buyer" : "Farmer"}.`
+        );
+        return;
+      }
+
       localStorage.setItem("user_id", data.user_id);
       localStorage.setItem("username", data.username);
       localStorage.setItem("farmer_id", data.farmer_id);
       localStorage.setItem("role", data.role);
 
-      // Tell App.jsx that login succeeded
       if (onLogin) {
         onLogin(data);
       }
     } catch (error) {
       console.error("Login error:", error);
-      setError(
-        "Could not connect to the backend."
-      );
+      setError("Could not connect to the backend.");
     } finally {
       setLoading(false);
     }
@@ -74,8 +79,7 @@ function Login({ onLogin }) {
           boxSizing: "border-box",
         }}
       >
-
-        {/* LOGO */}
+        {/* Logo / Header */}
         <div
           style={{
             textAlign: "center",
@@ -88,7 +92,7 @@ function Login({ onLogin }) {
               marginBottom: "8px",
             }}
           >
-            C
+            🌱
           </div>
 
           <h1
@@ -110,14 +114,14 @@ function Login({ onLogin }) {
           </p>
         </div>
 
-        {/* LOGIN TITLE */}
+        {/* Login Heading */}
         <h2
           style={{
             color: "#1f2937",
             marginBottom: "8px",
           }}
         >
-          Farmer Login
+          Welcome Back
         </h2>
 
         <p
@@ -126,37 +130,89 @@ function Login({ onLogin }) {
             marginBottom: "24px",
           }}
         >
-          Login to manage your crops and marketplace activity.
+          Login to continue to your AgriLink account.
         </p>
 
-        {/* ERROR */}
-        {error && (
-          <div
+        {/* Role Selector */}
+        <div style={{ marginBottom: "22px" }}>
+          <label
             style={{
-              background: "#fee2e2",
-              color: "#b91c1c",
-              padding: "12px",
-              borderRadius: "8px",
-              marginBottom: "18px",
-              fontSize: "14px",
+              display: "block",
+              fontWeight: "600",
+              marginBottom: "10px",
+              color: "#1f2937",
             }}
           >
-            {error}
+            Login as
+          </label>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "10px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setRole("FARMER");
+                setError("");
+              }}
+              style={{
+                padding: "12px",
+                borderRadius: "10px",
+                border:
+                  role === "FARMER"
+                    ? "2px solid #2d6a4f"
+                    : "1px solid #d9e2dc",
+                background:
+                  role === "FARMER" ? "#e8f5ee" : "white",
+                color:
+                  role === "FARMER" ? "#1b4332" : "#6b7280",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              🌾 Farmer
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setRole("BUYER");
+                setError("");
+              }}
+              style={{
+                padding: "12px",
+                borderRadius: "10px",
+                border:
+                  role === "BUYER"
+                    ? "2px solid #2d6a4f"
+                    : "1px solid #d9e2dc",
+                background:
+                  role === "BUYER" ? "#e8f5ee" : "white",
+                color:
+                  role === "BUYER" ? "#1b4332" : "#6b7280",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              🏪 Buyer
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* LOGIN FORM */}
+        {/* Login Form */}
         <form onSubmit={handleLogin}>
-
-          {/* USERNAME */}
+          {/* Username */}
           <div style={{ marginBottom: "18px" }}>
-
             <label
               style={{
                 display: "block",
+                fontWeight: "600",
                 marginBottom: "8px",
                 color: "#1f2937",
-                fontWeight: "600",
               }}
             >
               Username
@@ -164,35 +220,30 @@ function Login({ onLogin }) {
 
             <input
               type="text"
-              value={username}
-              onChange={(event) =>
-                setUsername(event.target.value)
-              }
               placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               style={{
                 width: "100%",
                 padding: "13px",
                 border: "1px solid #d1d5db",
-                borderRadius: "8px",
-                fontSize: "14px",
+                borderRadius: "10px",
                 boxSizing: "border-box",
-                color: "#1f2937",
-                background: "white",
+                fontSize: "15px",
+                outline: "none",
               }}
             />
-
           </div>
 
-          {/* PASSWORD */}
-          <div style={{ marginBottom: "24px" }}>
-
+          {/* Password */}
+          <div style={{ marginBottom: "20px" }}>
             <label
               style={{
                 display: "block",
+                fontWeight: "600",
                 marginBottom: "8px",
                 color: "#1f2937",
-                fontWeight: "600",
               }}
             >
               Password
@@ -200,69 +251,86 @@ function Login({ onLogin }) {
 
             <input
               type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               style={{
                 width: "100%",
                 padding: "13px",
                 border: "1px solid #d1d5db",
-                borderRadius: "8px",
-                fontSize: "14px",
+                borderRadius: "10px",
                 boxSizing: "border-box",
-                color: "#1f2937",
-                background: "white",
+                fontSize: "15px",
+                outline: "none",
               }}
             />
-
           </div>
 
-          {/* LOGIN BUTTON */}
+          {/* Error */}
+          {error && (
+            <div
+              style={{
+                background: "#fff1f2",
+                color: "#b91c1c",
+                padding: "12px",
+                borderRadius: "10px",
+                marginBottom: "18px",
+                fontSize: "14px",
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* Login Button */}
           <button
             type="submit"
             disabled={loading}
             style={{
               width: "100%",
               padding: "13px",
-              background: "#287a49",
-              color: "white",
               border: "none",
-              borderRadius: "8px",
-              fontSize: "15px",
+              borderRadius: "10px",
+              background: loading ? "#6b9f82" : "#2d6a4f",
+              color: "white",
+              fontSize: "16px",
               fontWeight: "600",
-              cursor: loading
-                ? "not-allowed"
-                : "pointer",
-              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading
-              ? "Logging in..."
-              : "Login"}
+            {loading ? "Logging in..." : "Login"}
           </button>
-
         </form>
 
-        {/* DEMO ACCOUNT */}
+        {/* Demo Account */}
         <div
           style={{
             marginTop: "24px",
             padding: "14px",
-            background: "#f8faf8",
-            borderRadius: "8px",
+            background: "#f8faf9",
+            borderRadius: "10px",
             textAlign: "center",
-            fontSize: "13px",
             color: "#6b7280",
+            fontSize: "14px",
           }}
         >
-          Demo account:{" "}
-          <strong>farmer1</strong> /{" "}
-          <strong>test123</strong>
+          {role === "FARMER" ? (
+            <>
+              Farmer demo:{" "}
+              <strong style={{ color: "#374151" }}>
+                farmer1 / test123
+              </strong>
+            </>
+          ) : (
+            <>
+              Buyer demo:{" "}
+              <strong style={{ color: "#374151" }}>
+                buyer1 / buyer123
+              </strong>
+            </>
+          )}
         </div>
-
       </div>
     </div>
   );

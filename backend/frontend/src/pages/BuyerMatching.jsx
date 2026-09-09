@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Users, Handshake, Send } from "lucide-react";
 
-function BuyerMatching() {
-  const [cropLotId, setCropLotId] = useState(1);
+function BuyerMatching({ selectedCropLot }) {
+  const [cropLotId, setCropLotId] = useState(
+    selectedCropLot?.id || 1
+  );
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -10,10 +12,17 @@ function BuyerMatching() {
   const [offerPrice, setOfferPrice] = useState("");
   const [offerQuantity, setOfferQuantity] = useState("");
   const [offerLoading, setOfferLoading] = useState(false);
+  useEffect(() => {
+    if (selectedCropLot) {
+      setOfferPrice(selectedCropLot.expected_price || "");
+      setOfferQuantity(selectedCropLot.quantity_kg || "");
+    }
+  }, [selectedCropLot]);
 
   // Find matching buyers
   const findBuyers = async (event) => {
     event.preventDefault();
+    console.log("Find Best Buyers clicked. Crop Lot ID:", cropLotId);
 
     setLoading(true);
     setMatches([]);
@@ -25,6 +34,7 @@ function BuyerMatching() {
       );
 
       const data = await response.json();
+      console.log("Buyer matching API response:", data);
 
       if (data.error) {
         alert(data.error);
@@ -123,6 +133,28 @@ function BuyerMatching() {
         </div>
       </div>
 
+      {selectedCropLot && (
+        <div
+          style={{
+            background: "#e8f5ee",
+            border: "1px solid #b7dfc8",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            marginBottom: "20px",
+          }}
+        >
+          <strong style={{ color: "#1b4332" }}>
+            Selected Crop: {selectedCropLot.commodity}
+          </strong>
+
+          <p style={{ margin: "6px 0 0", color: "#527064" }}>
+            {selectedCropLot.quantity_kg} kg •{" "}
+            {selectedCropLot.district || "Location not specified"} •{" "}
+            Expected ₹{selectedCropLot.expected_price || 0}/kg
+          </p>
+        </div>
+      )}
+
       {/* FIND BUYERS FORM */}
       <form className="crop-form" onSubmit={findBuyers}>
         <div className="form-grid">
@@ -136,6 +168,7 @@ function BuyerMatching() {
               value={cropLotId}
               onChange={(event) => setCropLotId(event.target.value)}
               required
+              readOnly={!!selectedCropLot}
             />
           </div>
 
@@ -242,7 +275,7 @@ function BuyerMatching() {
 
             <div>
               <h2>
-                <Send size={20} style={{marginRight: '8px', verticalAlign: 'text-bottom'}} />Send Offer
+                <Send size={20} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Send Offer
               </h2>
 
               <p>
