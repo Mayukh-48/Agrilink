@@ -1,0 +1,174 @@
+/* ===== Price Prediction Tab ===== */
+
+.pp-page {
+  font-family: inherit;
+}
+
+/* Commodity tabs */
+.pp-commodity-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.pp-tab {
+  border: 1px solid #d5ddd7;
+  background: #f8faf8;
+  color: #374151;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pp-tab:hover {
+  background: #edf7ef;
+  border-color: #287a49;
+}
+
+.pp-tab-active {
+  background: #287a49 !important;
+  color: white !important;
+  border-color: #287a49 !important;
+  font-weight: 600;
+}
+
+/* Historical stats strip */
+.pp-stats-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  background: #f0faf3;
+  border: 1px solid #c6e8d0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.pp-stat-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 100px;
+}
+
+.pp-stat-pill span {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pp-stat-pill strong {
+  font-size: 15px;
+  color: #173b2b;
+  font-weight: 700;
+}
+
+.pp-stats-note {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+/* Chart */
+.pp-chart-wrap {
+  background: #fafff9;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 8px 4px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+/* Results section */
+.pp-results {
+  margin-top: 24px;
+}
+
+.pp-results-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.pp-results-header h3 {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+/* Trend badge */
+.pp-trend {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pp-trend-up   { background: #dcfce7; color: #166534; }
+.pp-trend-down { background: #fee2e2; color: #991b1b; }
+.pp-trend-flat { background: #fef9c3; color: #713f12; }
+
+/* Prediction cards grid */
+.prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.prediction-card {
+  background: #f8faf8;
+  border: 1px solid #e1e7e2;
+  border-radius: 10px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: box-shadow 0.15s ease;
+}
+
+.prediction-card:hover {
+  box-shadow: 0 2px 8px rgba(40, 122, 73, 0.12);
+  border-color: #c6e8d0;
+}
+
+.pp-date {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.pp-price {
+  font-size: 16px;
+  color: #173b2b;
+}
+
+.pp-delta-up   { font-size: 11px; color: #166534; }
+.pp-delta-down { font-size: 11px; color: #991b1b; }
+.pp-delta-flat { font-size: 11px; color: #713f12; }
+
+/* Error message */
+.pp-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+/* Market badge (reuse existing class, add override) */
+.market-badge {
+  background: #dcf5e4;
+  color: #173b2b;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -19,7 +19,7 @@ from models import (
     Grievance,
     User
 )
-from prediction import predict_price
+from prediction import predict_price, available_commodities, get_commodity_stats
 
 pwd_context = CryptContext(
     schemes=["bcrypt"],
@@ -1011,3 +1011,31 @@ def login_user(
         "farmer_id": user.farmer_id,
         "role": user.role
     }
+
+
+# ── Price Prediction ──────────────────────────────────────────────────────────
+
+@app.get("/api/prediction/commodities")
+def get_commodities():
+    """Return list of commodities the prediction model supports."""
+    return available_commodities()
+
+
+@app.get("/api/prediction/price")
+def get_predicted_price(
+    current_price: float,
+    days: int = 7,
+    commodity: str = "Onion"
+):
+    """Predict future prices for the given commodity."""
+    return predict_price(
+        current_price=current_price,
+        days=days,
+        commodity=commodity
+    )
+
+
+@app.get("/api/prediction/stats")
+def get_prediction_stats(commodity: str = "Onion"):
+    """Return historical stats (mean/min/max/latest) for a commodity."""
+    return get_commodity_stats(commodity)
