@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./PricePrediction.css";
+import { API_BASE } from "../config";
 
 const COMMODITY_EMOJIS = {
   Onion:  "",
@@ -132,7 +133,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
 
   // Fetch available commodities
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/prediction/commodities")
+    fetch(`${API_BASE}/api/prediction/commodities`)
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data) && data.length) setCommodities(data); })
       .catch(() => {});
@@ -142,7 +143,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
   useEffect(() => {
     setPredictions([]);
     setStats(null);
-    fetch(`http://127.0.0.1:8000/api/prediction/mandis?commodity=${commodity}`)
+    fetch(`${API_BASE}/api/prediction/mandis?commodity=${commodity}`)
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length) {
@@ -158,7 +159,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
     if (!mandi) return;
     setStats(null);
     setPredictions([]);
-    fetch(`http://127.0.0.1:8000/api/prediction/stats?commodity=${commodity}&mandi=${encodeURIComponent(mandi)}`)
+    fetch(`${API_BASE}/api/prediction/stats?commodity=${commodity}&mandi=${encodeURIComponent(mandi)}`)
       .then((r) => r.json())
       .then((data) => {
         if (data && data.latest) {
@@ -176,7 +177,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
     try {
       const mandiParam = mandi ? `&mandi=${encodeURIComponent(mandi)}` : "";
       const resp = await fetch(
-        `http://127.0.0.1:8000/api/prediction/price?current_price=${currentPrice}&days=${days}&commodity=${commodity}${mandiParam}`
+        `${API_BASE}/api/prediction/price?current_price=${currentPrice}&days=${days}&commodity=${commodity}${mandiParam}`
       );
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.detail || "Prediction failed");

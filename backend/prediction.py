@@ -6,6 +6,7 @@ Supports both national (crop-level) and mandi-specific models.
 import os, re
 from datetime import date, timedelta
 import joblib
+import pandas as pd
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -61,10 +62,12 @@ def _predict(model, current_price: float, days: int):
     for day in range(1, days + 1):
         d = date.today() + timedelta(days=day)
         doy = d.timetuple().tm_yday
-        predicted_quintal = float(model.predict([[d.year, d.month, doy, lag_quintal]])[0])
-        # Ponytail: model expects Lag7 (price from 7 days ago).
-        # Passing yesterday's prediction into a Lag7 feature causes wild drift.
-        # Since we only have current_price, keep it constant as the lag proxy.
+        X_pred = pd.DataFrame([[d.year, d.month, doy, lag_quintal]], columns=['Year', 'Month', 'DayOfYear', 'Lag7'])
+        predicted_quintal = float(model.predict(X_pred)[0])
+        
+        # Update the lag feature using the new prediction to avoid stepped/flat lines
+        lag_quintal = predicted_quintal
+
         predictions.append({
             "date": str(d),
             "predicted_price": round(predicted_quintal / 100, 2),

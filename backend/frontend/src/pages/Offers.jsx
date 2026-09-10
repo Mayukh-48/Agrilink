@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Briefcase, Handshake } from "lucide-react";
+import { API_BASE } from "../config";
 
 function Offers() {
   const [offers, setOffers] = useState([]);
@@ -8,7 +9,7 @@ function Offers() {
   const fetchOffers = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/offers"
+        `${API_BASE}/api/offers`
       );
 
       const data = await response.json();
@@ -29,7 +30,7 @@ function Offers() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/offers/${offerId}/${action}`,
+        `${API_BASE}/api/offers/${offerId}/${action}`,
         {
           method: "PATCH",
         }

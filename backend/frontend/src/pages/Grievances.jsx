@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MessageSquare, FileText } from "lucide-react";
+import { API_BASE } from "../config";
 
 function Grievances() {
   const [grievances, setGrievances] = useState([]);
@@ -18,7 +19,7 @@ function Grievances() {
   const fetchGrievances = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/grievances"
+        `${API_BASE}/api/grievances`
       );
 
       const data = await response.json();
@@ -67,7 +68,7 @@ function Grievances() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/grievances?${params.toString()}`,
+        `${API_BASE}/api/grievances?${params.toString()}`,
         {
           method: "POST",
         }

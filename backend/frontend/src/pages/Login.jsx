@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE } from "../config";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
@@ -20,7 +21,7 @@ function Login({ onLogin }) {
       });
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/auth/login?${params.toString()}`,
+        `${API_BASE}/api/auth/login?${params.toString()}`,
         {
           method: "POST",
         }

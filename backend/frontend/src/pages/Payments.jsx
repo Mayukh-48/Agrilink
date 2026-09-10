@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CreditCard, Banknote } from "lucide-react";
+import { API_BASE } from "../config";
 
 function Payments() {
   const [payments, setPayments] = useState([]);
@@ -18,7 +19,7 @@ function Payments() {
   const fetchPayments = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/payments"
+        `${API_BASE}/api/payments`
       );
 
       const data = await response.json();
@@ -34,7 +35,7 @@ function Payments() {
   const fetchOffers = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/offers"
+        `${API_BASE}/api/offers`
       );
 
       const data = await response.json();
@@ -101,7 +102,7 @@ function Payments() {
       });
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/payments?${params.toString()}`,
+        `${API_BASE}/api/payments?${params.toString()}`,
         {
           method: "POST",
         }

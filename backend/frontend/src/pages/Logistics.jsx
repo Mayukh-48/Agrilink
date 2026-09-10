@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Truck, Package } from "lucide-react";
+import { API_BASE } from "../config";
 
 function Logistics() {
   const [logistics, setLogistics] = useState([]);
@@ -20,7 +21,7 @@ function Logistics() {
   const fetchLogistics = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/logistics"
+        `${API_BASE}/api/logistics`
       );
 
       const data = await response.json();
@@ -35,7 +36,7 @@ function Logistics() {
   const fetchOffers = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/offers"
+        `${API_BASE}/api/offers`
       );
 
       const data = await response.json();
@@ -87,7 +88,7 @@ function Logistics() {
       });
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/logistics?${params.toString()}`,
+        `${API_BASE}/api/logistics?${params.toString()}`,
         {
           method: "POST",
         }
@@ -129,7 +130,7 @@ function Logistics() {
   const updateStatus = async (logisticsId, status) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/logistics/${logisticsId}/status?status=${status}`,
+        `${API_BASE}/api/logistics/${logisticsId}/status?status=${status}`,
         {
           method: "PATCH",
         }

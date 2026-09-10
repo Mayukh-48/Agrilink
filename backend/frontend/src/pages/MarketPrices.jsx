@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../config";
 
 const CROPS = [
   { label: "Onion",  value: "Onion"  },
@@ -14,7 +15,7 @@ function MarketPrices({ onForecast }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/api/market/prices?commodity=${commodity}`)
+    fetch(`${API_BASE}/api/market/prices?commodity=${commodity}`)
       .then((r) => r.json())
       .then(setPrices)
       .catch(() => setPrices([]))

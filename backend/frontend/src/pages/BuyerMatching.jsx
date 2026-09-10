@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Users, Handshake, Send } from "lucide-react";
+import { API_BASE } from "../config";
 
 function BuyerMatching({ selectedCropLot }) {
   const [cropLotId, setCropLotId] = useState(
@@ -30,7 +31,7 @@ function BuyerMatching({ selectedCropLot }) {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/buyers/match/${cropLotId}`
+        `${API_BASE}/api/buyers/match/${cropLotId}`
       );
 
       const data = await response.json();
@@ -93,7 +94,7 @@ function BuyerMatching({ selectedCropLot }) {
       });
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/offers?${params.toString()}`,
+        `${API_BASE}/api/offers?${params.toString()}`,
         {
           method: "POST",
         }

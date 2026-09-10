@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { API_BASE } from "./config";
 
 import MarketPrices from "./pages/MarketPrices";
 import PricePrediction from "./pages/PricePrediction";
@@ -47,7 +48,7 @@ function App() {
   });
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/health")
+    fetch(`${API_BASE}/api/health`)
       .then((response) => response.json())
       .then((data) => {
         setBackendStatus(data.status);
@@ -56,7 +57,7 @@ function App() {
         setBackendStatus("Offline");
       });
 
-    fetch("http://127.0.0.1:8000/api/crop-lots")
+    fetch(`${API_BASE}/api/crop-lots`)
       .then((response) => response.json())
       .then((data) => {
         setCropLots(data);
@@ -90,7 +91,7 @@ function App() {
       });
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/crop-lots?${params.toString()}`,
+        `${API_BASE}/api/crop-lots?${params.toString()}`,
         {
           method: "POST",
         }
@@ -118,7 +119,7 @@ function App() {
       });
 
       const cropResponse = await fetch(
-        "http://127.0.0.1:8000/api/crop-lots"
+        `${API_BASE}/api/crop-lots`
       );
 
       const cropData = await cropResponse.json();

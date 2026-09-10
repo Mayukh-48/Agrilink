@@ -4,7 +4,7 @@ import axios from "axios";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import "./style.css";
 
-const API = "http://127.0.0.1:8000/api";
+const API = `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api`;
 
 function App() {
   const [commodity, setCommodity] = useState("Onion");
