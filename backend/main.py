@@ -224,6 +224,31 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.on_event("startup")
+def create_demo_buyer():
+    db = SessionLocal()
+
+    try:
+        existing_user = db.query(User).filter(
+            User.username == "buyer1"
+        ).first()
+
+        if existing_user is None:
+            buyer = User(
+                farmer_id=1,
+                username="buyer1",
+                password_hash=pwd_context.hash("buyer123"),
+                role="BUYER",
+                is_active=1
+            )
+
+            db.add(buyer)
+            db.commit()
+
+            print("Demo buyer account created: buyer1 / buyer123")
+
+    finally:
+        db.close()
 
 # CORS
 app.add_middleware(
