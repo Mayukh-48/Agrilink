@@ -38,8 +38,9 @@ def seed_initial_data(db: Session):
         ))
         db.commit()
 
-    existing_prices = db.query(MarketPrice).count()
-    if existing_prices == 0:
+    # Re-seed if empty or if using an older database that only had the 3 legacy mandis
+    if db.query(MarketPrice).count() < 20 or db.query(MarketPrice).filter(MarketPrice.commodity == "Potato").count() == 0:
+        db.query(MarketPrice).delete()
         prices = [
             # ── Onion ──────────────────────────────────────────────────────────────
             MarketPrice(market_name="Bangalore",         district="Bangalore",  commodity="Onion",  variety="Red Onion",   min_price=25, max_price=38, modal_price=31, arrival_quantity=850),
