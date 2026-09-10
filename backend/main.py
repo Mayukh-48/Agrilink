@@ -359,7 +359,9 @@ def price_prediction(
     if current_price is not None:
         predictions = predict_price(
             current_price=float(current_price),
-            days=int(days)
+            days=int(days),
+            commodity=commodity or "Onion",
+            mandi=market_name
         )
         return predictions
 
@@ -382,7 +384,9 @@ def price_prediction(
 
     predictions = predict_price(
         current_price=base_price,
-        days=int(days)
+        days=int(days),
+        commodity=comm_name,
+        mandi=mkt_name
     )
 
     return {
@@ -1053,22 +1057,6 @@ def get_commodities():
 def get_mandis(commodity: str = "Onion"):
     """Return the list of mandis available for a given commodity."""
     return available_mandis(commodity)
-
-
-@app.get("/api/prediction/price")
-def get_predicted_price(
-    current_price: float,
-    days: int = 7,
-    commodity: str = "Onion",
-    mandi: str = None
-):
-    """Predict future prices for the given commodity and mandi."""
-    return predict_price(
-        current_price=current_price,
-        days=days,
-        commodity=commodity,
-        mandi=mandi
-    )
 
 
 @app.get("/api/prediction/stats")
