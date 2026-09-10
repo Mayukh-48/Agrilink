@@ -570,6 +570,10 @@ def create_offer(
     )
 
     db.add(offer)
+
+    # Mark crop lot as IN_NEGOTIATION
+    crop_lot.status = "IN_NEGOTIATION"
+
     db.commit()
     db.refresh(offer)
 
@@ -590,8 +594,22 @@ def get_offers(
     db: Session = Depends(get_db)
 ):
     offers = db.query(Offer).all()
-
-    return offers
+    result = []
+    for offer in offers:
+        buyer = db.query(Buyer).filter(Buyer.id == offer.buyer_id).first()
+        crop = db.query(CropLot).filter(CropLot.id == offer.crop_lot_id).first()
+        result.append({
+            "id": offer.id,
+            "crop_lot_id": offer.crop_lot_id,
+            "buyer_id": offer.buyer_id,
+            "offered_price_per_kg": offer.offered_price_per_kg,
+            "quantity_kg": offer.quantity_kg,
+            "total_amount": offer.total_amount,
+            "status": offer.status,
+            "buyer_name": buyer.business_name if buyer else f"Buyer #{offer.buyer_id}",
+            "crop_commodity": crop.commodity if crop else f"Crop #{offer.crop_lot_id}",
+        })
+    return result
 
 @app.patch("/api/offers/{offer_id}/accept")
 def accept_offer(
@@ -610,6 +628,11 @@ def accept_offer(
         }
 
     offer.status = "ACCEPTED"
+
+    # Mark crop lot as SOLD
+    crop_lot = db.query(CropLot).filter(CropLot.id == offer.crop_lot_id).first()
+    if crop_lot:
+        crop_lot.status = "SOLD"
 
     db.commit()
     db.refresh(offer)
@@ -637,6 +660,19 @@ def reject_offer(
         }
 
     offer.status = "REJECTED"
+
+    # If no other PENDING offers remain for this crop, restore to AVAILABLE
+    other_pending = (
+        db.query(Offer)
+        .filter(Offer.crop_lot_id == offer.crop_lot_id)
+        .filter(Offer.id != offer.id)
+        .filter(Offer.status == "PENDING")
+        .count()
+    )
+    if other_pending == 0:
+        crop_lot = db.query(CropLot).filter(CropLot.id == offer.crop_lot_id).first()
+        if crop_lot and crop_lot.status == "IN_NEGOTIATION":
+            crop_lot.status = "AVAILABLE"
 
     db.commit()
     db.refresh(offer)
@@ -817,6 +853,22 @@ def get_payments(
     transactions = db.query(Transaction).all()
 
     return transactions
+
+@app.get("/api/dashboard/stats")
+def get_dashboard_stats(
+    db: Session = Depends(get_db)
+):
+    active_crops = db.query(CropLot).filter(CropLot.status != "SOLD").count()
+    total_value = db.query(func.coalesce(func.sum(CropLot.quantity_kg * CropLot.expected_price), 0)).scalar()
+    buyer_matches = db.query(Offer).filter(Offer.status.in_(["PENDING", "ACCEPTED"])).count()
+    completed_sales = db.query(Transaction).count()
+
+    return {
+        "active_crops": active_crops,
+        "expected_value": round(float(total_value), 2),
+        "buyer_matches": buyer_matches,
+        "completed_sales": completed_sales,
+    }
 
 @app.post("/api/grievances")
 def create_grievance(

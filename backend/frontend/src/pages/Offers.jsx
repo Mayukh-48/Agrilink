@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Briefcase, Handshake } from "lucide-react";
 import { API_BASE } from "../config";
 
-function Offers() {
+function Offers({ onOffersChange }) {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -50,6 +50,7 @@ function Offers() {
       );
 
       await fetchOffers();
+      if (onOffersChange) onOffersChange();
     } catch (error) {
       console.error("Offer status error:", error);
       alert("Could not update offer status.");
@@ -96,11 +97,11 @@ function Offers() {
                 </h3>
 
                 <p>
-                  Crop Lot: #{offer.crop_lot_id}
+                  <strong>Crop:</strong> {offer.crop_commodity || `Crop Lot #${offer.crop_lot_id}`}
                 </p>
 
                 <p>
-                  Buyer: #{offer.buyer_id}
+                  <strong>Buyer:</strong> {offer.buyer_name || `Buyer #${offer.buyer_id}`}
                 </p>
 
                 <p>

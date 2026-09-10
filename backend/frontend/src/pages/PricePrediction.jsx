@@ -164,7 +164,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
       .then((data) => {
         if (data && data.latest) {
           setStats(data);
-          setCurrentPrice((prev) => prev || String(data.latest));
+          setCurrentPrice(String(data.latest));
         }
       })
       .catch(() => {});
@@ -301,9 +301,37 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
         <div className="pp-results">
 
           <div className="pp-results-header">
-          <h3>Predicted Prices — next {days} days {mandi && <span style={{fontSize:'13px',color:'#6b7280',fontWeight:'400'}}>({mandi})</span>}</h3>
+            <h3>Predicted Prices — next {days} days {mandi && <span style={{fontSize:'13px',color:'#6b7280',fontWeight:'400'}}>({mandi})</span>}</h3>
             <TrendBadge predictions={predictions} currentPrice={Number(currentPrice)} />
           </div>
+
+          {(() => {
+            const prices = predictions.map(p => p.predicted_price);
+            const maxP = Math.max(...prices);
+            const maxIdx = prices.indexOf(maxP);
+            const curr = Number(currentPrice);
+            const lastP = prices[prices.length - 1];
+            const netDelta = curr ? ((lastP - curr) / curr) * 100 : 0;
+            const peakDelta = curr ? ((maxP - curr) / curr) * 100 : 0;
+            
+            let rec = "";
+            let color = "";
+            if (peakDelta > 2 && maxIdx > 0) {
+              rec = `💡 Recommendation: Hold for ${maxIdx + 1} days. Peak expected around ₹${maxP} (+${peakDelta.toFixed(1)}%).`;
+              color = "#16a34a";
+            } else if (netDelta < -1) {
+              rec = `⚠️ Recommendation: Sell now. Prices are expected to drop (${netDelta.toFixed(1)}% over ${days} days).`;
+              color = "#d97706";
+            } else {
+              rec = `💡 Recommendation: Prices are stable (${netDelta >= 0 ? "+" : ""}${netDelta.toFixed(1)}%). Sell whenever ready.`;
+              color = "#2563eb";
+            }
+            return (
+              <div style={{ marginBottom: "20px", padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: "8px", borderLeft: `4px solid ${color}`, fontSize: "14px", fontWeight: "500", color: "#334155" }}>
+                {rec}
+              </div>
+            );
+          })()}
 
           <PriceChart predictions={predictions} />
 

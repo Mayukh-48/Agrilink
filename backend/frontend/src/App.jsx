@@ -47,6 +47,33 @@ function App() {
     role: localStorage.getItem("role") || "",
   });
 
+  const [stats, setStats] = useState({
+    active_crops: 0,
+    expected_value: 0,
+    buyer_matches: 0,
+    completed_sales: 0,
+  });
+
+  const fetchCropLots = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/crop-lots`);
+      const data = await response.json();
+      if (Array.isArray(data)) setCropLots(data);
+    } catch (error) {
+      console.error("Crop lot error:", error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/dashboard/stats`);
+      const data = await response.json();
+      if (data && !data.error) setStats(data);
+    } catch (error) {
+      console.error("Dashboard stats error:", error);
+    }
+  };
+
   useEffect(() => {
     fetch(`${API_BASE}/api/health`)
       .then((response) => response.json())
@@ -57,15 +84,9 @@ function App() {
         setBackendStatus("Offline");
       });
 
-    fetch(`${API_BASE}/api/crop-lots`)
-      .then((response) => response.json())
-      .then((data) => {
-        setCropLots(data);
-      })
-      .catch((error) => {
-        console.error("Crop lot error:", error);
-      });
-  }, []);
+    fetchCropLots();
+    fetchStats();
+  }, [activePage]);
 
   const handleCropChange = (event) => {
     const { name, value } = event.target;
@@ -118,13 +139,8 @@ function App() {
         expected_price: "",
       });
 
-      const cropResponse = await fetch(
-        `${API_BASE}/api/crop-lots`
-      );
-
-      const cropData = await cropResponse.json();
-
-      setCropLots(cropData);
+      await fetchCropLots();
+      await fetchStats();
     } catch (error) {
       console.error("Add crop error:", error);
       alert("Could not connect to the backend.");
@@ -521,7 +537,7 @@ function App() {
                   </span>
 
                   <h2>
-                    {cropLots.length}
+                    {stats.active_crops || cropLots.length}
                   </h2>
                 </div>
 
@@ -541,15 +557,7 @@ function App() {
 
                   <h2>
                     ₹
-                    {cropLots
-                      .reduce(
-                        (total, crop) =>
-                          total +
-                          (crop.quantity_kg || 0) *
-                          (crop.expected_price || 0),
-                        0
-                      )
-                      .toLocaleString("en-IN")}
+                    {(stats.expected_value || 0).toLocaleString("en-IN")}
                   </h2>
 
                 </div>
@@ -569,7 +577,7 @@ function App() {
                   </span>
 
                   <h2>
-                    2
+                    {stats.buyer_matches || 0}
                   </h2>
 
                 </div>
@@ -589,7 +597,7 @@ function App() {
                   </span>
 
                   <h2>
-                    1
+                    {stats.completed_sales || 0}
                   </h2>
 
                 </div>
@@ -845,12 +853,23 @@ function App() {
         {activePage === "Buyer Matching" && (
           <BuyerMatching
             selectedCropLot={selectedCropLot}
+            cropLots={cropLots}
+            setActivePage={setActivePage}
+            refreshCropLots={() => {
+              fetchCropLots();
+              fetchStats();
+            }}
           />
         )}
 
         {/* Offers */}
         {activePage === "Offers" && (
-          <Offers />
+          <Offers
+            onOffersChange={() => {
+              fetchCropLots();
+              fetchStats();
+            }}
+          />
         )}
 
         {/* Logistics */}
