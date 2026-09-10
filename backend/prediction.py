@@ -1,4 +1,4 @@
-﻿"""
+"""
 prediction.py - Price prediction using trained ML models.
 Supports both national (crop-level) and mandi-specific models.
 """
@@ -62,7 +62,9 @@ def _predict(model, current_price: float, days: int):
         d = date.today() + timedelta(days=day)
         doy = d.timetuple().tm_yday
         predicted_quintal = float(model.predict([[d.year, d.month, doy, lag_quintal]])[0])
-        lag_quintal = predicted_quintal
+        # Ponytail: model expects Lag7 (price from 7 days ago).
+        # Passing yesterday's prediction into a Lag7 feature causes wild drift.
+        # Since we only have current_price, keep it constant as the lag proxy.
         predictions.append({
             "date": str(d),
             "predicted_price": round(predicted_quintal / 100, 2),
