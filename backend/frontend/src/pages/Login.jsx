@@ -102,7 +102,7 @@ function Login({ onLogin }) {
               color: "#1f2937",
             }}
           >
-            AgriLink
+            KisanLink
           </h1>
 
           <p
@@ -131,7 +131,7 @@ function Login({ onLogin }) {
             marginBottom: "24px",
           }}
         >
-          Login to continue to your AgriLink account.
+          Login to continue to your KisanLink account.
         </p>
 
         {/* Role Selector */}
