@@ -7,12 +7,62 @@ import {
     CreditCard,
     Search,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { API_BASE } from "../config";
 
 function BuyerDashboard({ cropLots, setActivePage }) {
+    const [myOffersCount, setMyOffersCount] = useState(0);
+
+    const buyerId = localStorage.getItem("buyer_id");
+
     const availableQuantity = cropLots.reduce(
         (total, crop) => total + (crop.quantity_kg || 0),
         0
     );
+
+    // Fetch buyer's offers
+    const fetchMyOffers = async () => {
+        if (!buyerId) {
+            setMyOffersCount(0);
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/api/offers?buyer_id=${buyerId}`
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                console.error(
+                    data.error || "Could not load buyer offers."
+                );
+                return;
+            }
+
+            if (Array.isArray(data)) {
+                setMyOffersCount(data.length);
+            }
+        } catch (error) {
+            console.error("Buyer offers error:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMyOffers();
+
+        // Refresh when the user comes back to the dashboard
+        const handleFocus = () => {
+            fetchMyOffers();
+        };
+
+        window.addEventListener("focus", handleFocus);
+
+        return () => {
+            window.removeEventListener("focus", handleFocus);
+        };
+    }, [buyerId]);
 
     return (
         <>
@@ -61,6 +111,7 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                     </div>
                 </div>
 
+                {/* My Offers */}
                 <div className="stat-card">
                     <div className="stat-icon">
                         <Handshake size={24} color="#2d6a4f" />
@@ -68,10 +119,12 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                     <div>
                         <span>My Offers</span>
-                        <h2>0</h2>
+
+                        <h2>{myOffersCount}</h2>
                     </div>
                 </div>
 
+                {/* Completed Purchases */}
                 <div className="stat-card">
                     <div className="stat-icon">
                         <Truck size={24} color="#2d6a4f" />
@@ -99,7 +152,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                         <button
                             className="primary-button"
-                            onClick={() => setActivePage("Crop Listings")}
+                            onClick={() =>
+                                setActivePage("Crop Listings")
+                            }
                         >
                             <Search size={16} />
                             Browse Crops
@@ -115,24 +170,31 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                             >
 
                                 <div className="crop-image">
-                                    <Leaf size={24} color="#2d6a4f" />
+                                    <Leaf
+                                        size={24}
+                                        color="#2d6a4f"
+                                    />
                                 </div>
 
                                 <div className="crop-info">
                                     <h3>{crop.commodity}</h3>
 
                                     <p>
-                                        {crop.quantity_kg} kg • {crop.district}
+                                        {crop.quantity_kg} kg •{" "}
+                                        {crop.district}
                                     </p>
 
                                     <p>
                                         Quality:{" "}
-                                        {crop.quality_grade || "Not specified"}
+                                        {crop.quality_grade ||
+                                            "Not specified"}
                                     </p>
                                 </div>
 
                                 <div className="crop-price">
-                                    <span>Expected Price</span>
+                                    <span>
+                                        Expected Price
+                                    </span>
 
                                     <strong>
                                         ₹{crop.expected_price}/kg
@@ -147,7 +209,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                         ))}
 
                         {cropLots.length === 0 && (
-                            <p>No produce is currently available.</p>
+                            <p>
+                                No produce is currently available.
+                            </p>
                         )}
 
                     </div>
@@ -160,7 +224,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                     <div className="card-header">
                         <div>
                             <h2>Buyer Actions</h2>
-                            <p>Manage your procurement activities</p>
+                            <p>
+                                Manage your procurement activities
+                            </p>
                         </div>
                     </div>
 
@@ -178,7 +244,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                                 width: "100%",
                                 justifyContent: "center",
                             }}
-                            onClick={() => setActivePage("Crop Listings")}
+                            onClick={() =>
+                                setActivePage("Crop Listings")
+                            }
                         >
                             <Search size={17} />
                             Browse Available Crops
@@ -190,7 +258,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                                 width: "100%",
                                 justifyContent: "center",
                             }}
-                            onClick={() => setActivePage("Offers")}
+                            onClick={() =>
+                                setActivePage("Offers")
+                            }
                         >
                             <Handshake size={17} />
                             View My Offers
@@ -202,7 +272,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                                 width: "100%",
                                 justifyContent: "center",
                             }}
-                            onClick={() => setActivePage("Logistics")}
+                            onClick={() =>
+                                setActivePage("Logistics")
+                            }
                         >
                             <Truck size={17} />
                             Track Logistics
@@ -214,7 +286,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                                 width: "100%",
                                 justifyContent: "center",
                             }}
-                            onClick={() => setActivePage("Payments")}
+                            onClick={() =>
+                                setActivePage("Payments")
+                            }
                         >
                             <CreditCard size={17} />
                             View Payments
@@ -232,7 +306,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
                 <div className="card-header">
                     <div>
                         <h2>Quick Actions</h2>
-                        <p>Quickly access your procurement tools</p>
+                        <p>
+                            Quickly access your procurement tools
+                        </p>
                     </div>
                 </div>
 
@@ -240,7 +316,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                     <button
                         type="button"
-                        onClick={() => setActivePage("Crop Listings")}
+                        onClick={() =>
+                            setActivePage("Crop Listings")
+                        }
                     >
                         <Search
                             size={32}
@@ -253,7 +331,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                     <button
                         type="button"
-                        onClick={() => setActivePage("Offers")}
+                        onClick={() =>
+                            setActivePage("Offers")
+                        }
                     >
                         <Handshake
                             size={32}
@@ -266,7 +346,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                     <button
                         type="button"
-                        onClick={() => setActivePage("Logistics")}
+                        onClick={() =>
+                            setActivePage("Logistics")
+                        }
                     >
                         <Truck
                             size={32}
@@ -279,7 +361,9 @@ function BuyerDashboard({ cropLots, setActivePage }) {
 
                     <button
                         type="button"
-                        onClick={() => setActivePage("Payments")}
+                        onClick={() =>
+                            setActivePage("Payments")
+                        }
                     >
                         <CreditCard
                             size={32}

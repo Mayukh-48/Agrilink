@@ -767,15 +767,15 @@ def get_offers(
 ):
     query = db.query(Offer)
 
-    # Buyer receives offers sent by farmers
+    # Buyer:
+    # Show BOTH incoming offers from farmers
+    # and outgoing offers created by this buyer.
     if buyer_id is not None:
         query = query.filter(
-            Offer.buyer_id == buyer_id,
-            Offer.sender_role == "FARMER"
+            Offer.buyer_id == buyer_id
         )
 
     offers = query.all()
-
     result = []
 
     for offer in offers:
@@ -801,24 +801,18 @@ def get_offers(
                 .first()
             )
 
-        # If farmer_id was requested, only return
-        # offers belonging to that farmer.
+        # Farmer:
+        # Show BOTH incoming offers from buyers
+        # and outgoing offers created by this farmer.
         if farmer_id is not None:
-
             if crop is None or crop.farmer_id != farmer_id:
-                continue
-
-            # Farmer should only receive BUYER-sent offers
-            if offer.sender_role != "BUYER":
                 continue
 
         result.append({
             "id": offer.id,
             "crop_lot_id": offer.crop_lot_id,
             "buyer_id": offer.buyer_id,
-
             "sender_role": offer.sender_role,
-
             "offered_price_per_kg": offer.offered_price_per_kg,
             "quantity_kg": offer.quantity_kg,
             "total_amount": offer.total_amount,

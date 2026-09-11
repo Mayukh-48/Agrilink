@@ -3,7 +3,6 @@ import {
     Leaf,
     MapPin,
     Package,
-    IndianRupee,
     Handshake,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -21,25 +20,26 @@ function BuyerCropListings({
             (crop) =>
                 crop.status === "AVAILABLE" &&
                 (
-                    crop.commodity?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    crop.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    crop.quality_grade?.toLowerCase().includes(searchTerm.toLowerCase())
+                    crop.commodity
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    crop.district
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    crop.quality_grade
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase())
                 )
         );
     }, [cropLots, searchTerm]);
 
     return (
         <>
-            {/* Page Header */}
-            <div className="page-header">
-                <div>
-                    <h1>Crop Listings</h1>
-                    <p>Browse fresh produce available from farmers</p>
-                </div>
-            </div>
-
             {/* Search */}
-            <div className="dashboard-card" style={{ marginBottom: "24px" }}>
+            <div
+                className="dashboard-card"
+                style={{ marginBottom: "24px" }}
+            >
                 <div
                     style={{
                         display: "flex",
@@ -65,11 +65,12 @@ function BuyerCropListings({
                 </div>
             </div>
 
-            {/* Crop Listings */}
+            {/* Available Produce */}
             <section className="dashboard-card">
                 <div className="card-header">
                     <div>
                         <h2>Available Produce</h2>
+
                         <p>
                             {availableCrops.length} crop lot
                             {availableCrops.length !== 1 ? "s" : ""} available
@@ -92,21 +93,33 @@ function BuyerCropListings({
                             style={{ marginBottom: "12px" }}
                         />
 
-                        <h3 style={{ marginBottom: "6px", color: "#192a21" }}>
+                        <h3
+                            style={{
+                                marginBottom: "6px",
+                                color: "#192a21",
+                            }}
+                        >
                             No crops found
                         </h3>
 
                         <p>
-                            Try another search or check back later for new listings.
+                            Try another search or check back later for new
+                            listings.
                         </p>
                     </div>
                 ) : (
                     <div className="crop-list">
                         {availableCrops.map((crop) => (
-                            <div className="crop-item" key={crop.id}>
+                            <div
+                                className="crop-item"
+                                key={crop.id}
+                            >
                                 {/* Crop Icon */}
                                 <div className="crop-image">
-                                    <Leaf size={26} color="#2d6a4f" />
+                                    <Leaf
+                                        size={26}
+                                        color="#2d6a4f"
+                                    />
                                 </div>
 
                                 {/* Crop Details */}
@@ -114,17 +127,33 @@ function BuyerCropListings({
                                     <h3>{crop.commodity}</h3>
 
                                     <p>
-                                        <Package size={14} style={{ verticalAlign: "middle" }} />{" "}
-                                        {Number(crop.quantity_kg).toLocaleString("en-IN")} kg
+                                        <Package
+                                            size={14}
+                                            style={{
+                                                verticalAlign: "middle",
+                                            }}
+                                        />{" "}
+                                        {Number(
+                                            crop.quantity_kg
+                                        ).toLocaleString("en-IN")}{" "}
+                                        kg
                                     </p>
 
                                     <p>
-                                        <MapPin size={14} style={{ verticalAlign: "middle" }} />{" "}
-                                        {crop.district || "Location not specified"}
+                                        <MapPin
+                                            size={14}
+                                            style={{
+                                                verticalAlign: "middle",
+                                            }}
+                                        />{" "}
+                                        {crop.district ||
+                                            "Location not specified"}
                                     </p>
 
                                     <p>
-                                        Quality: {crop.quality_grade || "Not specified"}
+                                        Quality:{" "}
+                                        {crop.quality_grade ||
+                                            "Not specified"}
                                     </p>
                                 </div>
 
@@ -133,18 +162,25 @@ function BuyerCropListings({
                                     <span>Expected Price</span>
 
                                     <strong>
-                                        ₹{Number(crop.expected_price || 0).toLocaleString("en-IN")}
+                                        ₹
+                                        {Number(
+                                            crop.expected_price || 0
+                                        ).toLocaleString("en-IN")}
                                         /kg
                                     </strong>
                                 </div>
 
                                 {/* Status */}
-                                <span className="available">AVAILABLE</span>
+                                <span className="available">
+                                    AVAILABLE
+                                </span>
 
                                 {/* View Button */}
                                 <button
                                     className="primary-button"
-                                    onClick={() => setSelectedCrop(crop)}
+                                    onClick={() =>
+                                        setSelectedCrop(crop)
+                                    }
                                 >
                                     View Details
                                 </button>
@@ -181,33 +217,55 @@ function BuyerCropListings({
                         <div className="card-header">
                             <div>
                                 <h2>{selectedCrop.commodity}</h2>
-                                <p>Crop Lot #{selectedCrop.id}</p>
+
+                                <p>
+                                    Crop Lot #{selectedCrop.id}
+                                </p>
                             </div>
 
-                            <span className="available">AVAILABLE</span>
+                            <span className="available">
+                                AVAILABLE
+                            </span>
                         </div>
 
                         <div
                             style={{
                                 display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
+                                gridTemplateColumns:
+                                    "1fr 1fr",
                                 gap: "16px",
                                 marginTop: "20px",
                             }}
                         >
                             <div>
                                 <span>Quantity</span>
-                                <strong style={{ display: "block", marginTop: "4px" }}>
-                                    {Number(selectedCrop.quantity_kg).toLocaleString("en-IN")} kg
+
+                                <strong
+                                    style={{
+                                        display: "block",
+                                        marginTop: "4px",
+                                    }}
+                                >
+                                    {Number(
+                                        selectedCrop.quantity_kg
+                                    ).toLocaleString("en-IN")}{" "}
+                                    kg
                                 </strong>
                             </div>
 
                             <div>
                                 <span>Expected Price</span>
-                                <strong style={{ display: "block", marginTop: "4px" }}>
+
+                                <strong
+                                    style={{
+                                        display: "block",
+                                        marginTop: "4px",
+                                    }}
+                                >
                                     ₹
                                     {Number(
-                                        selectedCrop.expected_price || 0
+                                        selectedCrop.expected_price ||
+                                        0
                                     ).toLocaleString("en-IN")}
                                     /kg
                                 </strong>
@@ -215,22 +273,43 @@ function BuyerCropListings({
 
                             <div>
                                 <span>Quality</span>
-                                <strong style={{ display: "block", marginTop: "4px" }}>
-                                    {selectedCrop.quality_grade || "Not specified"}
+
+                                <strong
+                                    style={{
+                                        display: "block",
+                                        marginTop: "4px",
+                                    }}
+                                >
+                                    {selectedCrop.quality_grade ||
+                                        "Not specified"}
                                 </strong>
                             </div>
 
                             <div>
                                 <span>District</span>
-                                <strong style={{ display: "block", marginTop: "4px" }}>
-                                    {selectedCrop.district || "Not specified"}
+
+                                <strong
+                                    style={{
+                                        display: "block",
+                                        marginTop: "4px",
+                                    }}
+                                >
+                                    {selectedCrop.district ||
+                                        "Not specified"}
                                 </strong>
                             </div>
 
                             <div>
                                 <span>Harvest Date</span>
-                                <strong style={{ display: "block", marginTop: "4px" }}>
-                                    {selectedCrop.harvest_date || "Not specified"}
+
+                                <strong
+                                    style={{
+                                        display: "block",
+                                        marginTop: "4px",
+                                    }}
+                                >
+                                    {selectedCrop.harvest_date ||
+                                        "Not specified"}
                                 </strong>
                             </div>
                         </div>
@@ -249,9 +328,13 @@ function BuyerCropListings({
                                     justifyContent: "center",
                                 }}
                                 onClick={() => {
-                                    setSelectedCropLot(selectedCrop);
+                                    setSelectedCropLot(
+                                        selectedCrop
+                                    );
                                     setSelectedCrop(null);
-                                    setActivePage("Make an Offer");
+                                    setActivePage(
+                                        "Make an Offer"
+                                    );
                                 }}
                             >
                                 <Handshake size={17} />
@@ -260,11 +343,14 @@ function BuyerCropListings({
 
                             <button
                                 type="button"
-                                onClick={() => setSelectedCrop(null)}
+                                onClick={() =>
+                                    setSelectedCrop(null)
+                                }
                                 style={{
                                     flex: 1,
                                     padding: "11px 16px",
-                                    border: "1px solid #d9e2dc",
+                                    border:
+                                        "1px solid #d9e2dc",
                                     borderRadius: "10px",
                                     background: "white",
                                     cursor: "pointer",

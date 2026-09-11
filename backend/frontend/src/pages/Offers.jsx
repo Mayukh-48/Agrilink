@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Briefcase, Handshake, CheckCircle, XCircle } from "lucide-react";
+import {
+  Briefcase,
+  Handshake,
+  CheckCircle,
+  XCircle,
+  ArrowDownLeft,
+  ArrowUpRight,
+} from "lucide-react";
 import { API_BASE } from "../config";
 
 function Offers({ onOffersChange }) {
@@ -16,12 +23,10 @@ function Offers({ onOffersChange }) {
     try {
       let url = `${API_BASE}/api/offers`;
 
-      // Buyers receive offers sent by farmers
       if (isBuyer && buyerId) {
         url += `?buyer_id=${buyerId}`;
       }
 
-      // Farmers receive offers sent by buyers
       if (!isBuyer && farmerId) {
         url += `?farmer_id=${farmerId}`;
       }
@@ -81,6 +86,148 @@ function Offers({ onOffersChange }) {
     }
   };
 
+  // --------------------------------------------------
+  // SEPARATE INCOMING AND OUTGOING OFFERS
+  // --------------------------------------------------
+
+  const incomingOffers = offers.filter((offer) =>
+    isBuyer
+      ? offer.sender_role === "FARMER"
+      : offer.sender_role === "BUYER"
+  );
+
+  const outgoingOffers = offers.filter((offer) =>
+    isBuyer
+      ? offer.sender_role === "BUYER"
+      : offer.sender_role === "FARMER"
+  );
+
+  // --------------------------------------------------
+  // OFFER CARD
+  // --------------------------------------------------
+
+  const renderOffer = (offer, isIncoming) => (
+    <div
+      className="crop-list-item"
+      key={offer.id}
+    >
+      {/* ICON */}
+      <div className="crop-image">
+        <Handshake size={24} color="#2d6a4f" />
+      </div>
+
+      {/* OFFER DETAILS */}
+      <div className="crop-info">
+        <h3>
+          Offer #{offer.id}
+        </h3>
+
+        <p>
+          <strong>Crop:</strong>{" "}
+          {offer.crop_commodity ||
+            `Crop Lot #${offer.crop_lot_id}`}
+        </p>
+
+        {isBuyer ? (
+          <p>
+            <strong>Farmer:</strong>{" "}
+            {offer.farmer_name ||
+              `Farmer #${offer.farmer_id}`}
+          </p>
+        ) : (
+          <p>
+            <strong>Buyer:</strong>{" "}
+            {offer.buyer_name ||
+              `Buyer #${offer.buyer_id}`}
+          </p>
+        )}
+
+        <p>
+          <strong>Quantity:</strong>{" "}
+          {Number(offer.quantity_kg).toLocaleString("en-IN")} kg
+        </p>
+
+        <p>
+          <strong>Total Value:</strong> ₹
+          {Number(
+            offer.total_amount || 0
+          ).toLocaleString("en-IN")}
+        </p>
+      </div>
+
+      {/* PRICE */}
+      <div className="crop-price">
+        <span>
+          Offered Price
+        </span>
+
+        <strong>
+          ₹{offer.offered_price_per_kg}/kg
+        </strong>
+      </div>
+
+      {/* STATUS */}
+      <span className="available">
+        {offer.status}
+      </span>
+
+      {/* INCOMING OFFER ACTIONS */}
+      {isIncoming &&
+        offer.status === "PENDING" && (
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              flexDirection: "column",
+            }}
+          >
+            <button
+              className="primary-button"
+              disabled={loading}
+              onClick={() =>
+                updateOfferStatus(
+                  offer.id,
+                  "accept"
+                )
+              }
+            >
+              <CheckCircle size={16} />
+              Accept
+            </button>
+
+            <button
+              className="secondary-button"
+              disabled={loading}
+              onClick={() =>
+                updateOfferStatus(
+                  offer.id,
+                  "reject"
+                )
+              }
+            >
+              <XCircle size={16} />
+              Reject
+            </button>
+          </div>
+        )}
+
+      {/* OUTGOING OFFER WAITING MESSAGE */}
+      {!isIncoming &&
+        offer.status === "PENDING" && (
+          <div
+            style={{
+              fontSize: "14px",
+              color: "#6b7280",
+              fontStyle: "italic",
+            }}
+          >
+            Waiting for{" "}
+            {isBuyer ? "farmer" : "buyer"} response...
+          </div>
+        )}
+    </div>
+  );
+
   return (
     <div className="page-card">
 
@@ -94,158 +241,117 @@ function Offers({ onOffersChange }) {
               gap: "8px",
             }}
           >
-            <Briefcase size={22} color="#1b4332" />
+            <Briefcase
+              size={22}
+              color="#1b4332"
+            />
 
-            {isBuyer ? "Incoming Offers" : "My Offers"}
+            Offers
           </h2>
 
           <p>
-            {isBuyer
-              ? "View offers received from farmers and respond to them."
-              : "View and manage offers sent to buyers."}
+            View incoming offers and track offers you have sent.
           </p>
         </div>
       </div>
 
-      {/* OFFERS */}
-      {offers.length === 0 ? (
-        <p>
+      {/* ============================= */}
+      {/* INCOMING OFFERS */}
+      {/* ============================= */}
+
+      <div style={{ marginBottom: "32px" }}>
+        <h3
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: "#1b4332",
+            marginBottom: "8px",
+          }}
+        >
+          <ArrowDownLeft size={20} />
+          Incoming Offers
+        </h3>
+
+        <p
+          style={{
+            color: "#6b7280",
+            marginBottom: "16px",
+          }}
+        >
           {isBuyer
-            ? "No incoming offers found."
-            : "No offers found."}
+            ? "Offers received from farmers."
+            : "Offers received from buyers."}
         </p>
-      ) : (
-        <div className="crop-list">
 
-          {offers.map((offer) => (
-            <div
-              className="crop-list-item"
-              key={offer.id}
-            >
+        {incomingOffers.length === 0 ? (
+          <div
+            style={{
+              padding: "20px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              color: "#6b7280",
+            }}
+          >
+            No incoming offers found.
+          </div>
+        ) : (
+          <div className="crop-list">
+            {incomingOffers.map((offer) =>
+              renderOffer(offer, true)
+            )}
+          </div>
+        )}
+      </div>
 
-              {/* ICON */}
-              <div className="crop-image">
-                <Handshake size={24} color="#2d6a4f" />
-              </div>
+      {/* ============================= */}
+      {/* OUTGOING OFFERS */}
+      {/* ============================= */}
 
-              {/* OFFER DETAILS */}
-              <div className="crop-info">
+      <div>
+        <h3
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: "#1b4332",
+            marginBottom: "8px",
+          }}
+        >
+          <ArrowUpRight size={20} />
+          Outgoing Offers
+        </h3>
 
-                <h3>
-                  Offer #{offer.id}
-                </h3>
+        <p
+          style={{
+            color: "#6b7280",
+            marginBottom: "16px",
+          }}
+        >
+          {isBuyer
+            ? "Offers you have sent to farmers."
+            : "Offers you have sent to buyers."}
+        </p>
 
-                <p>
-                  <strong>Crop:</strong>{" "}
-                  {offer.crop_commodity ||
-                    `Crop Lot #${offer.crop_lot_id}`}
-                </p>
-
-                {isBuyer ? (
-                  <p>
-                    <strong>Farmer:</strong>{" "}
-                    {offer.farmer_name ||
-                      `Farmer #${offer.farmer_id}`}
-                  </p>
-                ) : (
-                  <p>
-                    <strong>Buyer:</strong>{" "}
-                    {offer.buyer_name ||
-                      `Buyer #${offer.buyer_id}`}
-                  </p>
-                )}
-
-                <p>
-                  <strong>Quantity:</strong>{" "}
-                  {Number(offer.quantity_kg).toLocaleString("en-IN")} kg
-                </p>
-
-                <p>
-                  <strong>Total Value:</strong> ₹
-                  {Number(
-                    offer.total_amount || 0
-                  ).toLocaleString("en-IN")}
-                </p>
-
-              </div>
-
-              {/* PRICE */}
-              <div className="crop-price">
-
-                <span>
-                  Offered Price
-                </span>
-
-                <strong>
-                  ₹{offer.offered_price_per_kg}/kg
-                </strong>
-
-              </div>
-
-              {/* STATUS */}
-              <span className="available">
-                {offer.status}
-              </span>
-
-              {/* RECIPIENT ACTIONS */}
-              {offer.status === "PENDING" &&
-                (
-                  (isBuyer && offer.sender_role === "FARMER") ||
-                  (!isBuyer && offer.sender_role === "BUYER")
-                ) && (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <button
-                      className="primary-button"
-                      disabled={loading}
-                      onClick={() =>
-                        updateOfferStatus(offer.id, "accept")
-                      }
-                    >
-                      <CheckCircle size={16} />
-                      Accept
-                    </button>
-
-                    <button
-                      className="secondary-button"
-                      disabled={loading}
-                      onClick={() =>
-                        updateOfferStatus(offer.id, "reject")
-                      }
-                    >
-                      <XCircle size={16} />
-                      Reject
-                    </button>
-                  </div>
-                )}
-
-              {/* WAITING MESSAGE FOR OFFER SENDER */}
-              {offer.status === "PENDING" &&
-                (
-                  (isBuyer && offer.sender_role === "BUYER") ||
-                  (!isBuyer && offer.sender_role === "FARMER")
-                ) && (
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      color: "#6b7280",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Waiting for {isBuyer ? "farmer" : "buyer"} response...
-                  </div>
-                )}
-
-            </div>
-          ))}
-
-        </div>
-      )}
+        {outgoingOffers.length === 0 ? (
+          <div
+            style={{
+              padding: "20px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              color: "#6b7280",
+            }}
+          >
+            No outgoing offers found.
+          </div>
+        ) : (
+          <div className="crop-list">
+            {outgoingOffers.map((offer) =>
+              renderOffer(offer, false)
+            )}
+          </div>
+        )}
+      </div>
 
     </div>
   );

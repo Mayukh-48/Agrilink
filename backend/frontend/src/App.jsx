@@ -517,7 +517,7 @@ function App() {
             {/* Status */}
             <div className="status-bar">
 
-              <span>Backend Status</span>
+              <span>Farmer Account</span>
 
               <strong
                 className={
