@@ -58,6 +58,13 @@ def available_mandis(commodity: str):
 
 def _predict(model, current_price: float, days: int):
     predictions = []
+    
+    # Base prediction for today to anchor the relative trend
+    d = date.today()
+    doy = d.timetuple().tm_yday
+    X_base = pd.DataFrame([[d.year, d.month, doy, current_price * 100]], columns=['Year', 'Month', 'DayOfYear', 'Lag7'])
+    base_pred = float(model.predict(X_base)[0])
+    
     lag_quintal = current_price * 100
     for day in range(1, days + 1):
         d = date.today() + timedelta(days=day)
@@ -65,12 +72,15 @@ def _predict(model, current_price: float, days: int):
         X_pred = pd.DataFrame([[d.year, d.month, doy, lag_quintal]], columns=['Year', 'Month', 'DayOfYear', 'Lag7'])
         predicted_quintal = float(model.predict(X_pred)[0])
         
+        # ponytail: scale by the model's relative trajectory, not absolute leaf values
+        adjusted_price = current_price * (predicted_quintal / base_pred) if base_pred > 0 else (predicted_quintal / 100)
+        
         # Update the lag feature using the new prediction to avoid stepped/flat lines
         lag_quintal = predicted_quintal
 
         predictions.append({
             "date": str(d),
-            "predicted_price": round(predicted_quintal / 100, 2),
+            "predicted_price": round(adjusted_price, 2),
         })
     return predictions
 
