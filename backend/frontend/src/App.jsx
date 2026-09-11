@@ -883,12 +883,12 @@ function App() {
 
         {/* Logistics */}
         {activePage === "Logistics" && (
-          <Logistics />
+          <Logistics role={loggedInUser.role} />
         )}
 
         {/* Payments */}
         {activePage === "Payments" && (
-          <Payments />
+          <Payments role={loggedInUser.role} />
         )}
 
         {/* Grievances */}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CreditCard, Banknote } from "lucide-react";
 import { API_BASE } from "../config";
 
-function Payments() {
+function Payments({ role }) {
   const [payments, setPayments] = useState([]);
   const [offers, setOffers] = useState([]);
 
@@ -146,19 +146,21 @@ function Payments() {
         <div>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CreditCard size={22} color="#1b4332" /> Payments</h2>
           <p>
-            Make payments for accepted agricultural offers.
+            {role === "BUYER" ? "Make payments for accepted agricultural offers." : "View the status of payments from buyers."}
           </p>
         </div>
 
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm
-            ? "Close"
-            : "+ Make Payment"}
-        </button>
+        {role === "BUYER" && (
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm
+              ? "Close"
+              : "+ Make Payment"}
+          </button>
+        )}
       </div>
 
       {/* PAYMENT FORM */}

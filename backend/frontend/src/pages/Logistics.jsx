@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Truck, Package } from "lucide-react";
 import { API_BASE } from "../config";
 
-function Logistics() {
+function Logistics({ role }) {
   const [logistics, setLogistics] = useState([]);
   const [offers, setOffers] = useState([]);
 
@@ -162,19 +162,21 @@ function Logistics() {
         <div>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Truck size={22} color="#1b4332" /> Logistics</h2>
           <p>
-            Create and track crop pickup and delivery.
+            {role === "FARMER" ? "Create and track crop pickup and delivery." : "Track crop pickup and delivery details."}
           </p>
         </div>
 
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm
-            ? "Close"
-            : "+ Create Shipment"}
-        </button>
+        {role === "FARMER" && (
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm
+              ? "Close"
+              : "+ Create Shipment"}
+          </button>
+        )}
       </div>
 
       {/* CREATE SHIPMENT FORM */}
@@ -381,7 +383,7 @@ function Logistics() {
                 </span>
 
                 {/* STATUS BUTTONS */}
-                {item.status !== "DELIVERED" && (
+                {role === "FARMER" && item.status !== "DELIVERED" && (
                   <div
                     style={{
                       display: "flex",
