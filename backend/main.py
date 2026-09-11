@@ -212,6 +212,10 @@ def seed_initial_data(db: Session):
         db.commit()
 
 from sqlalchemy import text
+# Create database tables first
+Base.metadata.create_all(bind=engine)
+
+
 # Add buyer_id column to users table if it does not exist
 with engine.connect() as connection:
     columns = connection.execute(
@@ -225,6 +229,7 @@ with engine.connect() as connection:
             text("ALTER TABLE users ADD COLUMN buyer_id INTEGER")
         )
         connection.commit()
+
 
 # Add sender_role column to offers table if it does not exist
 with engine.connect() as connection:
