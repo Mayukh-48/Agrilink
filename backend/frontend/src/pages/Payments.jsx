@@ -129,6 +129,9 @@ function Payments({ role }) {
 
       setShowForm(false);
 
+      // Tell the dashboard that a new payment was completed
+      window.dispatchEvent(new Event("paymentUpdated"));
+
       await fetchPayments();
     } catch (error) {
       console.error("Payment creation error:", error);

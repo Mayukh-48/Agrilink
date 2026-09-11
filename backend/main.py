@@ -1104,10 +1104,19 @@ def create_payment(
 
 @app.get("/api/payments")
 def get_payments(
+    buyer_id: int = None,
     db: Session = Depends(get_db)
 ):
+    query = db.query(Transaction)
 
-    transactions = db.query(Transaction).all()
+    # If buyer_id is provided,
+    # return only that buyer's transactions.
+    if buyer_id is not None:
+        query = query.filter(
+            Transaction.buyer_id == buyer_id
+        )
+
+    transactions = query.all()
 
     return transactions
 
