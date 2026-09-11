@@ -144,35 +144,9 @@ function Offers({ onOffersChange }) {
                     flexDirection: "column",
                   }}
                 >
-
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={loading}
-                    onClick={() =>
-                      updateOfferStatus(
-                        offer.id,
-                        "accept"
-                      )
-                    }
-                  >
-                    Accept
-                  </button>
-
-                  <button
-                    type="button"
-                    className="cancel-button"
-                    disabled={loading}
-                    onClick={() =>
-                      updateOfferStatus(
-                        offer.id,
-                        "reject"
-                      )
-                    }
-                  >
-                    Reject
-                  </button>
-
+                  <span style={{ fontSize: "14px", color: "#6b7280", fontStyle: "italic" }}>
+                    Waiting for buyer response...
+                  </span>
                 </div>
               )}
 

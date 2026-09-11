@@ -316,8 +316,9 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
             
             let rec = "";
             let color = "";
-            if (peakDelta > 2 && maxIdx > 0) {
-              rec = `💡 Recommendation: Hold for ${maxIdx + 1} days. Peak expected around ₹${maxP} (+${peakDelta.toFixed(1)}%).`;
+            if (peakDelta > 2) {
+              const holdDays = maxIdx + 1;
+              rec = `💡 Recommendation: ${holdDays === 1 ? 'Peak expected tomorrow.' : `Hold for ${holdDays} days.`} Peak expected around ₹${maxP} (+${peakDelta.toFixed(1)}%).`;
               color = "#16a34a";
             } else if (netDelta < -1) {
               rec = `⚠️ Recommendation: Sell now. Prices are expected to drop (${netDelta.toFixed(1)}% over ${days} days).`;
@@ -333,7 +334,7 @@ export default function PricePrediction({ initialCommodity = "Onion", initialMan
             );
           })()}
 
-          <PriceChart predictions={predictions} />
+          <PriceChart predictions={[{ date: "Today", predicted_price: Number(currentPrice) }, ...predictions]} />
 
           <div className="prediction-grid">
             {predictions.map((p) => {
