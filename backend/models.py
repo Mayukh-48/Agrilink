@@ -92,13 +92,14 @@ class Offer(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     crop_lot_id = Column(Integer, nullable=False)
-
     buyer_id = Column(Integer, nullable=False)
 
+    # FARMER = farmer sent the offer
+    # BUYER = buyer sent the offer
+    sender_role = Column(String, default="FARMER")
+
     offered_price_per_kg = Column(Float, nullable=False)
-
     quantity_kg = Column(Float, nullable=False)
-
     total_amount = Column(Float, nullable=False)
 
     status = Column(String, default="PENDING")
@@ -165,3 +166,4 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     role = Column(String, default="FARMER")
     is_active = Column(Integer, default=1)
+    buyer_id = Column(Integer, nullable=True)

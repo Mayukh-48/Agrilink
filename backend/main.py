@@ -211,6 +211,37 @@ def seed_initial_data(db: Session):
         db.add(logistics1)
         db.commit()
 
+from sqlalchemy import text
+# Add buyer_id column to users table if it does not exist
+with engine.connect() as connection:
+    columns = connection.execute(
+        text("PRAGMA table_info(users)")
+    ).fetchall()
+
+    column_names = [column[1] for column in columns]
+
+    if "buyer_id" not in column_names:
+        connection.execute(
+            text("ALTER TABLE users ADD COLUMN buyer_id INTEGER")
+        )
+        connection.commit()
+
+# Add sender_role column to offers table if it does not exist
+with engine.connect() as connection:
+    columns = connection.execute(
+        text("PRAGMA table_info(offers)")
+    ).fetchall()
+
+    column_names = [column[1] for column in columns]
+
+    if "sender_role" not in column_names:
+        connection.execute(
+            text(
+                "ALTER TABLE offers "
+                "ADD COLUMN sender_role VARCHAR DEFAULT 'FARMER'"
+            )
+        )
+        connection.commit()
 # Create database tables
 Base.metadata.create_all(bind=engine)
 db = SessionLocal()
@@ -233,9 +264,14 @@ def create_demo_buyer():
             User.username == "buyer1"
         ).first()
 
-        if existing_user is None:
+        buyer_record = db.query(Buyer).filter(
+            Buyer.business_name == "Sahyadri Agro Traders"
+        ).first()
+
+        if existing_user is None and buyer_record is not None:
             buyer = User(
                 farmer_id=1,
+                buyer_id=buyer_record.id,
                 username="buyer1",
                 password_hash=pwd_context.hash("buyer123"),
                 role="BUYER",
@@ -245,7 +281,22 @@ def create_demo_buyer():
             db.add(buyer)
             db.commit()
 
-            print("Demo buyer account created: buyer1 / buyer123")
+            print(
+                f"Demo buyer account created: buyer1 / buyer123 "
+                f"(Buyer ID: {buyer_record.id})"
+            )
+
+        elif existing_user is not None and buyer_record is not None:
+            if existing_user.buyer_id != buyer_record.id:
+                existing_user.buyer_id = buyer_record.id
+                existing_user.role = "BUYER"
+                db.commit()
+
+            print(
+                f"Demo buyer linked: buyer1 -> "
+                f"{buyer_record.business_name} "
+                f"(Buyer ID: {buyer_record.id})"
+            )
 
     finally:
         db.close()
@@ -560,8 +611,92 @@ def create_offer(
     buyer_id: int,
     offered_price_per_kg: float,
     quantity_kg: float,
+    sender_role: str = "FARMER",
     db: Session = Depends(get_db)
 ):
+
+    # Validate sender role
+    sender_role = sender_role.upper()
+
+    if sender_role not in ["FARMER", "BUYER"]:
+        return {
+            "error": "sender_role must be FARMER or BUYER"
+        }
+
+    # Check crop lot
+    crop_lot = (
+        db.query(CropLot)
+        .filter(CropLot.id == crop_lot_id)
+        .first()
+    )
+
+    if crop_lot is None:
+        return {
+            "error": "Crop lot not found"
+        }
+
+    # Check buyer
+    buyer = (
+        db.query(Buyer)
+        .filter(Buyer.id == buyer_id)
+        .first()
+    )
+
+    if buyer is None:
+        return {
+            "error": "Buyer not found"
+        }
+
+    # Check quantity
+    if quantity_kg <= 0:
+        return {
+            "error": "Quantity must be greater than 0"
+        }
+
+    if quantity_kg > crop_lot.quantity_kg:
+        return {
+            "error": f"Maximum available quantity is {crop_lot.quantity_kg} kg"
+        }
+
+    # Check price
+    if offered_price_per_kg <= 0:
+        return {
+            "error": "Offer price must be greater than 0"
+        }
+
+    # Calculate total amount
+    total_amount = offered_price_per_kg * quantity_kg
+
+    offer = Offer(
+        crop_lot_id=crop_lot_id,
+        buyer_id=buyer_id,
+        sender_role=sender_role,
+        offered_price_per_kg=offered_price_per_kg,
+        quantity_kg=quantity_kg,
+        total_amount=total_amount,
+        status="PENDING"
+    )
+
+    db.add(offer)
+
+    # Mark crop lot as in negotiation
+    crop_lot.status = "IN_NEGOTIATION"
+
+    db.commit()
+    db.refresh(offer)
+
+    return {
+        "message": "Offer created successfully",
+        "offer_id": offer.id,
+        "id": offer.id,
+        "crop_lot_id": crop_lot_id,
+        "buyer_id": buyer_id,
+        "sender_role": sender_role,
+        "offered_price_per_kg": offered_price_per_kg,
+        "quantity_kg": quantity_kg,
+        "total_amount": total_amount,
+        "status": offer.status
+    }
 
     # Check crop lot
     crop_lot = (
@@ -621,24 +756,98 @@ def create_offer(
 
 @app.get("/api/offers")
 def get_offers(
+    buyer_id: int = None,
+    farmer_id: int = None,
     db: Session = Depends(get_db)
 ):
-    offers = db.query(Offer).all()
+    query = db.query(Offer)
+
+    # Buyer receives offers sent by farmers
+    if buyer_id is not None:
+        query = query.filter(
+            Offer.buyer_id == buyer_id,
+            Offer.sender_role == "FARMER"
+        )
+
+    offers = query.all()
+
     result = []
+
     for offer in offers:
-        buyer = db.query(Buyer).filter(Buyer.id == offer.buyer_id).first()
-        crop = db.query(CropLot).filter(CropLot.id == offer.crop_lot_id).first()
+
+        buyer = (
+            db.query(Buyer)
+            .filter(Buyer.id == offer.buyer_id)
+            .first()
+        )
+
+        crop = (
+            db.query(CropLot)
+            .filter(CropLot.id == offer.crop_lot_id)
+            .first()
+        )
+
+        farmer = None
+
+        if crop:
+            farmer = (
+                db.query(Farmer)
+                .filter(Farmer.id == crop.farmer_id)
+                .first()
+            )
+
+        # If farmer_id was requested, only return
+        # offers belonging to that farmer.
+        if farmer_id is not None:
+
+            if crop is None or crop.farmer_id != farmer_id:
+                continue
+
+            # Farmer should only receive BUYER-sent offers
+            if offer.sender_role != "BUYER":
+                continue
+
         result.append({
             "id": offer.id,
             "crop_lot_id": offer.crop_lot_id,
             "buyer_id": offer.buyer_id,
+
+            "sender_role": offer.sender_role,
+
             "offered_price_per_kg": offer.offered_price_per_kg,
             "quantity_kg": offer.quantity_kg,
             "total_amount": offer.total_amount,
             "status": offer.status,
-            "buyer_name": buyer.business_name if buyer else f"Buyer #{offer.buyer_id}",
-            "crop_commodity": crop.commodity if crop else f"Crop #{offer.crop_lot_id}",
+
+            "buyer_name": (
+                buyer.business_name
+                if buyer
+                else f"Buyer #{offer.buyer_id}"
+            ),
+
+            "crop_commodity": (
+                crop.commodity
+                if crop
+                else f"Crop #{offer.crop_lot_id}"
+            ),
+
+            "farmer_id": (
+                crop.farmer_id
+                if crop
+                else None
+            ),
+
+            "farmer_name": (
+                farmer.name
+                if farmer
+                else (
+                    f"Farmer #{crop.farmer_id}"
+                    if crop
+                    else "Unknown Farmer"
+                )
+            )
         })
+
     return result
 
 @app.patch("/api/offers/{offer_id}/accept")
@@ -1063,12 +1272,13 @@ def login_user(
         }
 
     return {
-        "message": "Login successful",
-        "user_id": user.id,
-        "username": user.username,
-        "farmer_id": user.farmer_id,
-        "role": user.role
-    }
+    "message": "Login successful",
+    "user_id": user.id,
+    "username": user.username,
+    "farmer_id": user.farmer_id,
+    "buyer_id": user.buyer_id,
+    "role": user.role
+}
 
 
 # ── Price Prediction ──────────────────────────────────────────────────────────

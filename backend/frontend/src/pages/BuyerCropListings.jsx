@@ -251,7 +251,7 @@ function BuyerCropListings({
                                 onClick={() => {
                                     setSelectedCropLot(selectedCrop);
                                     setSelectedCrop(null);
-                                    setActivePage("Buyer Matching");
+                                    setActivePage("Make an Offer");
                                 }}
                             >
                                 <Handshake size={17} />

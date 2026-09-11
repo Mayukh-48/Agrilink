@@ -12,6 +12,7 @@ import Grievances from "./pages/Grievances";
 import Login from "./pages/Login";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerCropListings from "./pages/BuyerCropListings";
+import BuyerOffer from "./pages/BuyerOffer";
 import {
   Leaf, LayoutDashboard, List, TrendingUp, LineChart, Users,
   Briefcase, Truck, CreditCard, MessageSquare, LogOut,
@@ -170,6 +171,14 @@ function App() {
       ];
 
   const renderPage = () => {
+    if (activePage === "Make an Offer" && loggedInUser.role === "BUYER") {
+      return (
+        <BuyerOffer
+          selectedCropLot={selectedCropLot}
+          setActivePage={setActivePage}
+        />
+      );
+    }
     if (activePage === "Crop Listings" && loggedInUser.role === "BUYER") {
       return (
         <BuyerCropListings
@@ -824,8 +833,8 @@ function App() {
           />
         )}
 
-        {/* Crop Listings */}
-        {activePage === "Crop Listings" && (
+        {/* Buyer Crop Listings / Buyer Offer / Farmer Crop Listings */}
+        {(activePage === "Crop Listings" || activePage === "Make an Offer") && (
           renderPage()
         )}
 

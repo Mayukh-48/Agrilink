@@ -45,6 +45,7 @@ function Login({ onLogin }) {
       localStorage.setItem("user_id", data.user_id);
       localStorage.setItem("username", data.username);
       localStorage.setItem("farmer_id", data.farmer_id);
+      localStorage.setItem("buyer_id", data.buyer_id || "");
       localStorage.setItem("role", data.role);
 
       if (onLogin) {
