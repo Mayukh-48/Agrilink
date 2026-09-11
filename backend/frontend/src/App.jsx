@@ -148,6 +148,30 @@ function App() {
     }
   };
 
+  const handleDeleteCrop = async (cropLotId) => {
+    if (!window.confirm("Are you sure you want to delete this crop listing?")) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/crop-lots/${cropLotId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        alert(data.error || "Failed to delete crop");
+        return;
+      }
+
+      alert("Crop listing deleted successfully!");
+      await fetchCropLots();
+      await fetchStats();
+    } catch (error) {
+      console.error("Delete crop error:", error);
+      alert("Could not connect to the backend.");
+    }
+  };
+
   const menuItems =
     loggedInUser.role === "BUYER"
       ? [
@@ -362,9 +386,17 @@ function App() {
 
                   </div>
 
-                  <span className="available">
-                    {crop.status}
-                  </span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }}>
+                    <span className="available">
+                      {crop.status}
+                    </span>
+                    <button 
+                      onClick={() => handleDeleteCrop(crop.id)}
+                      style={{ background: "#fee2e2", color: "#dc2626", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
+                    >
+                      Delete
+                    </button>
+                  </div>
 
                 </div>
               ))}

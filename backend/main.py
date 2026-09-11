@@ -417,6 +417,25 @@ def get_crop_lots(
 
     return crop_lots
 
+
+from fastapi import HTTPException
+
+@app.delete("/api/crop-lots/{crop_lot_id}")
+def delete_crop_lot(
+    crop_lot_id: int,
+    db: Session = Depends(get_db)
+):
+    crop_lot = db.query(CropLot).filter(CropLot.id == crop_lot_id).first()
+    if not crop_lot:
+        raise HTTPException(status_code=404, detail="Crop lot not found")
+    
+    # Also delete any associated offers to maintain referential integrity
+    db.query(Offer).filter(Offer.crop_lot_id == crop_lot_id).delete()
+    
+    db.delete(crop_lot)
+    db.commit()
+    return {"message": "Crop lot deleted successfully"}
+
 @app.get("/api/market/prices")
 def get_market_prices(
     commodity: str,
