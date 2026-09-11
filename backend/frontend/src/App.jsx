@@ -394,7 +394,7 @@ function App() {
 
         <div className="logo">
           <Leaf size={24} color="#95d5b2" />
-          <span>AgriLink</span>
+          <span>KisanLink</span>
         </div>
 
         <p className="menu-title">MENU</p>
