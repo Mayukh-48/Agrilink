@@ -137,45 +137,8 @@ This project is open source. Choose a license (MIT is suggested).
 
 Contact
 - Repo: https://github.com/Mayukh-48/Agrilink
-- Project / Maintainer: (add your name and contact info)
+
 
 ---
 
-Original README (AgriLink MVP) preserved below:
 
-# AgriLink MVP
-
-A working MVP for the farmer market-linkage problem statement.
-
-## Features
-- Farmer dashboard
-- Add crop lot
-- Market price comparison
-- 7-day demo price forecast
-- Buyer recommendation
-- Net realization calculation
-- Simple offer creation
-
-## Stack
-Frontend: React + Vite
-Backend: Python + FastAPI
-Database: SQLite for the first MVP
-ML: demo forecast endpoint; replace with XGBoost later
-
-## Run backend (Windows)
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-
-Backend: http://127.0.0.1:8000
-Swagger: http://127.0.0.1:8000/docs
-
-## Run frontend
-Open a second terminal:
-cd frontend
-npm install
-npm run dev
-
-Open the URL shown by Vite, normally http://localhost:5173
